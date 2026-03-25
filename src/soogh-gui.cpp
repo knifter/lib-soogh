@@ -42,6 +42,8 @@ bool SooghGUI::begin()
 
 time_t SooghGUI::loop()
 {
+    lgfx_check_flush();
+
 	// ScreenStack may not be empty
 	if(_scrstack.size() == 0)
 	{
@@ -88,7 +90,7 @@ void SooghGUI::flushEvents()
 
 bool SooghGUI::handle(soogh_event_t e)
 {
-	loop();
+	// loop();
 
     // flush/ignore all events if a screen has closed previously, wait for KEY_RELEASED
     if(_ignore_events)

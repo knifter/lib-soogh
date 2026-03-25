@@ -191,8 +191,28 @@ void lvgl_init()
 #endif // SOOGH_ENCODER_KEYS
 };
 
+static lv_disp_drv_t* _pending_flush_disp = nullptr;
+
+void lgfx_check_flush()
+{
+    if(_pending_flush_disp && !_lgfx.dmaBusy())
+    {
+        _lgfx.endWrite();
+        lv_disp_flush_ready(_pending_flush_disp);
+        _pending_flush_disp = nullptr;
+    };
+};
+
 static void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p)
 {
+    // Safety: if previous DMA not yet drained, finish it now before starting the next
+    if(_pending_flush_disp)
+    {
+        _lgfx.endWrite();
+        lv_disp_flush_ready(_pending_flush_disp);
+        _pending_flush_disp = nullptr;
+    };
+
     uint32_t w = ( area->x2 - area->x1 + 1 );
     uint32_t h = ( area->y2 - area->y1 + 1 );
 
@@ -207,9 +227,8 @@ static void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* c
     //_lgfx.writePixelsDMA((lgfx::swap565_t *)&color_p->full, w * h);
     //_lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::swap565_t *)&color_p->full);
 #endif
-    _lgfx.endWrite();
-
-    lv_disp_flush_ready( disp );
+    // Don't call endWrite() — DMA is running, CPU is free
+    _pending_flush_disp = disp;
 };
 
 #ifdef SOOGH_TOUCH
