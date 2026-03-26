@@ -136,9 +136,6 @@ void lgfx_init()
 {
     _lgfx.init();
     _lgfx.setRotation(SOOGH_DISP_ROTATE);
-#ifdef SOOGH_DEV_M5CORE
-    _lgfx.setColorDepth(24);
-#endif
 };
 
 #if LV_USE_LOG
