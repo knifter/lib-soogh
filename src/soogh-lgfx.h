@@ -11,11 +11,7 @@
 
 #include <lvgl.h>
 
-#ifdef SOOGH_DEV_M5CORE
-    extern LGFX _lgfx;
-#endif
-
-#ifdef SOOGH_DEV_M5CORE2
+#if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
     extern LGFX _lgfx;
 #endif
 
