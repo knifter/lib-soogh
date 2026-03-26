@@ -15,6 +15,10 @@
     extern LGFX _lgfx;
 #endif
 
+#ifdef SOOGH_DEV_M5CORE2
+    extern LGFX _lgfx;
+#endif
+
 #ifdef SOOGH_DEV_WT32SC01
     class LGFX_SC01 : public lgfx::LGFX_Device
     {

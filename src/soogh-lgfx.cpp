@@ -37,6 +37,11 @@ static void lv_disp_cb(lv_disp_drv_t*, const lv_area_t*, lv_color_t*);
 LGFX _lgfx;
 #endif
 
+#ifdef SOOGH_DEV_M5CORE2
+// M%Stack has Lovyan Auto-detect, apparently
+LGFX _lgfx;
+#endif
+
 #ifdef SOOGH_DEV_WT32SC01
 LGFX_SC01::LGFX_SC01(void)
 {
@@ -220,6 +225,9 @@ static void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* c
 #ifdef SOOGH_DEV_M5CORE
     // _lgfx.setAddrWindow( area->x1, area->y1, w, h );
     // _lgfx.writePixelsDMA((lgfx::rgb565_t *)&color_p->full, w * h);
+    _lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::rgb565_t *)&color_p->full);
+#endif
+#ifdef SOOGH_DEV_M5CORE2
     _lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::rgb565_t *)&color_p->full);
 #endif
 #ifdef SOOGH_DEV_WT32SC01

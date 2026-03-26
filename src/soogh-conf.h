@@ -15,6 +15,13 @@
     #define SOOGH_ENCODER_KEYS          1
 #endif
 
+#ifdef SOOGH_DEV_M5CORE2
+	#define DISPLAY_HEIGHT				240
+	#define DISPLAY_WIDTH				320
+    #define SOOGH_DISP_ROTATE           1
+    #define SOOGH_ENCODER_KEYS          1
+#endif
+
 #ifdef SOOGH_DEV_WT32SC01
     #define SOOGH_TOUCH
     #define SOOGH_DOUBLEBUF
