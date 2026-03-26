@@ -188,10 +188,14 @@ void NumberField::draw_close()
 	{
 		case 0: lv_spinbox_step_prev(me->_spinbox); break;
 		case 1: lv_spinbox_decrement(me->_spinbox); break;
-		case 2: DBG("Close"); me->close(); break;
+		case 2: 
+			// DBG("Close"); 
+			me->close(); break;
 		case 3: lv_spinbox_increment(me->_spinbox); break;
 		case 4: lv_spinbox_step_next(me->_spinbox); break;
-		default: DBG("ID = %d", id); break;
+		default:
+			// DBG("ID = %d", id); 
+			break;
 	};
 	me->export_value();
 };
