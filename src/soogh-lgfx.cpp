@@ -15,7 +15,9 @@ lv_color_t*             _lv_color_buf2 = nullptr;
 
 // Display driver
 lv_disp_drv_t 		    _lv_display_drv;        /*Descriptor of a display driver*/
-static void lv_disp_cb(lv_disp_drv_t*, const lv_area_t*, lv_color_t*);
+static inline void lv_disp_cb(lv_disp_drv_t*, const lv_area_t*, lv_color_t*);
+static inline void lv_busy_wait_cb(lv_disp_drv_t*);
+static inline void lgfx_check_flush();
 
 #ifdef SOOGH_TOUCH
     lv_indev_drv_t 		_lv_touch_drv;           /*Descriptor of a input device driver*/
@@ -36,7 +38,6 @@ static void lv_disp_cb(lv_disp_drv_t*, const lv_area_t*, lv_color_t*);
 // M%Stack has Lovyan Auto-detect, apparently
 LGFX _lgfx;
 #endif
-
 
 #ifdef SOOGH_DEV_WT32SC01
 LGFX_SC01::LGFX_SC01(void)
@@ -166,10 +167,11 @@ void lvgl_init()
     lv_disp_draw_buf_init(&_lv_draw_buf, _lv_color_buf1, _lv_color_buf2, LV_BUF_SIZE);
 
     lv_disp_drv_init(&_lv_display_drv);          /*Basic initialization*/
-    _lv_display_drv.flush_cb = lv_disp_cb;    /*Set your driver function*/
-    _lv_display_drv.draw_buf = &_lv_draw_buf;        /*Assign the buffer to the display*/
-    _lv_display_drv.hor_res = DISPLAY_WIDTH;   /*Set the horizontal resolution of the display*/
-    _lv_display_drv.ver_res = DISPLAY_HEIGHT;   /*Set the vertical resolution of the display*/
+    _lv_display_drv.flush_cb = lv_disp_cb;       /*Set your driver function*/
+    _lv_display_drv.wait_cb = lv_busy_wait_cb;  /* Called when waiting for a free display buffer in lv_timer_handler, must be used to check DMA transfer has finished. Kind of a v8.3 hack. */
+    _lv_display_drv.draw_buf = &_lv_draw_buf;    /*Assign the buffer to the display*/
+    _lv_display_drv.hor_res = DISPLAY_WIDTH;     /*Set the horizontal resolution of the display*/
+    _lv_display_drv.ver_res = DISPLAY_HEIGHT;    /*Set the vertical resolution of the display*/
     lv_disp_drv_register(&_lv_display_drv);      /*Finally register the driver*/
 
 #ifdef SOOGH_TOUCH
@@ -187,11 +189,20 @@ void lvgl_init()
     lvgl_enc_last_key = 0;
     lvgl_enc_pressed = false;
 #endif // SOOGH_ENCODER_KEYS
+
+    _lgfx.initDMA();
 };
 
 static lv_disp_drv_t* _pending_flush_disp = nullptr;
 
-void lgfx_check_flush()
+static inline void lv_busy_wait_cb(lv_disp_drv_t*)
+{
+    lgfx_check_flush();
+
+    yield();
+};
+
+static inline void lgfx_check_flush()
 {
     if(_pending_flush_disp && !_lgfx.dmaBusy())
     {
@@ -201,7 +212,7 @@ void lgfx_check_flush()
     };
 };
 
-static void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p)
+static inline void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p)
 {
     // Safety: if previous DMA not yet drained, finish it now before starting the next
     if(_pending_flush_disp)
@@ -214,15 +225,12 @@ static void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* c
     uint32_t w = ( area->x2 - area->x1 + 1 );
     uint32_t h = ( area->y2 - area->y1 + 1 );
 
+    // Start SPI bus (CS-pin) and start writing pixel data through DMA
     _lgfx.startWrite();
 #if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
-    // _lgfx.setAddrWindow( area->x1, area->y1, w, h );
-    // _lgfx.writePixelsDMA((lgfx::rgb565_t *)&color_p->full, w * h);
     _lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::rgb565_t *)&color_p->full);
 #endif
 #ifdef SOOGH_DEV_WT32SC01
-    //_lgfx.setAddrWindow( area->x1, area->y1, w, h );
-    //_lgfx.writePixelsDMA((lgfx::swap565_t *)&color_p->full, w * h);
     //_lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::swap565_t *)&color_p->full);
 #endif
     // Don't call endWrite() — DMA is running, CPU is free
@@ -247,7 +255,7 @@ static void lv_touchpad_cb(lv_indev_drv_t * indev, lv_indev_data_t * data)
 #endif
 
 #ifdef SOOGH_ENCODER_KEYS
-void lv_keys_cb(lv_indev_drv_t * indev, lv_indev_data_t * data)
+static void lv_keys_cb(lv_indev_drv_t * indev, lv_indev_data_t * data)
 {
     data->key = lvgl_enc_last_key;            /*Get the last pressed or released key*/
 

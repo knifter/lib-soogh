@@ -38,7 +38,6 @@
 
 void lgfx_init();
 void lvgl_init();
-void lgfx_check_flush();
 
 #ifdef SOOGH_TOUCH
     extern lv_indev_drv_t 		_lv_touch_drv;           /*Descriptor of a input device driver*/
