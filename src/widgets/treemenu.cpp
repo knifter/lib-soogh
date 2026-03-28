@@ -411,7 +411,36 @@ bool TreeMenu::sendKey(lv_key_t key)
 	};
 
 	// simulated indev mode
+	/*
+	lv_obj_is_editable() removed in v9; rely on scrollable flag only
+	TreeMenu manages editable state explicitly via lv_group_set_editing().
+
+	Was: 
 	bool editable_or_scrollable = lv_obj_is_editable(obj) || lv_obj_has_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
+
+	In LVGL v8, lv_obj_is_editable() returned true for sliders, spinboxes, dropdowns, rollers, arcs — 
+	widgets that need a first ENTER to "activate" before a second ENTER/LEFT/RIGHT manipulates their 
+	value. Buttons, checkboxes and switches returned false.
+
+	With only the scrollable check remaining, editable_or_scrollable is false for all of those widgets, so 
+	ENTER immediately sends CLICKED instead of entering edit mode
+	no harm for buttons and dropdowns, broken for sliders/spinboxes. If your treemenu items only use buttons, 
+	 checkboxes, dropdowns and switches, the current code is fine. If any item exposes a slider or spinbox, the 
+	 user can no longer adjust it with the encoder/keys.
+	The LVGL v9 equivalent of lv_obj_is_editable is to walk the class chain:
+
+	static bool obj_is_editable(lv_obj_t * obj)
+	{
+	    const lv_obj_class_t * cls = lv_obj_get_class(obj);
+    	while(cls) {
+        	if(cls->editable == LV_OBJ_CLASS_EDITABLE_TRUE)  return true;
+        	if(cls->editable == LV_OBJ_CLASS_EDITABLE_FALSE) return false;
+        	cls = cls->base_class;  // INHERIT → keep walking
+    	}
+    	return false;
+	}
+	*/
+	bool editable_or_scrollable = lv_obj_has_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
 	// DBG("edit_or_scrollable = %s, group.editing = %s", editable_or_scrollable ? "true": "false", lv_group_get_editing(grp) ? "true":"false");
 	switch(key)
 	{
