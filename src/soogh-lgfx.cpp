@@ -25,9 +25,8 @@ static inline void          lgfx_check_flush();
 #ifdef SOOGH_ENCODER_KEYS
     uint32_t            lvgl_enc_last_key = 0;
     bool                lvgl_enc_pressed = false;
-    lv_indev_drv_t 		_lv_keys_drv;           /*Descriptor of a input device driver*/
-	lv_indev_t*			lvgl_indev_keyenc;
-    static void lv_keys_cb(lv_indev_drv_t *, lv_indev_data_t *);
+    lv_indev_t*         lvgl_indev_keyenc = nullptr;
+    static void lv_keys_cb(lv_indev_t*, lv_indev_data_t*);
 #endif
 
 // Device Configs
@@ -162,22 +161,18 @@ void lvgl_init()
     lv_log_register_print_cb(serial_log_cb);
 #endif
 
-    lv_disp_draw_buf_init(&_lv_draw_buf, _lv_color_buf1, _lv_color_buf2, LV_BUF_SIZE);
-
-    // Display creation
+// Display creation
     lv_display_t* _lv_display = lv_display_create(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     lv_display_set_color_format(_lv_display, LV_COLOR_FORMAT_RGB565);
     lv_display_set_buffers(_lv_display, _lv_buf1, _lv_buf2, LV_BUF_SIZE * 2, LV_DISPLAY_RENDER_MODE_PARTIAL);
     lv_display_set_flush_cb(_lv_display, lv_disp_cb);
     lv_display_set_flush_wait_cb(_lv_display, lv_flush_wait_cb);
-    
 
 #ifdef SOOGH_TOUCH
-    lv_indev_drv_init(&_lv_touch_drv);             /*Basic initialization*/
-    _lv_touch_drv.type = LV_INDEV_TYPE_POINTER;    /*Touch pad is a pointer-like device*/
-    _lv_touch_drv.read_cb = lv_touchpad_cb;      /*Set your driver function*/
-    lv_indev_drv_register(&_lv_touch_drv);         /*Finally register the driver*/
-#endif // GUI_TOUCH
+    _lv_touch_indev = lv_indev_create();
+    lv_indev_set_type(_lv_touch_indev, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(_lv_touch_indev, lv_touchpad_cb);
+#endif
 
 #ifdef SOOGH_ENCODER_KEYS
     lvgl_indev_keyenc = lv_indev_create();
@@ -208,11 +203,16 @@ static inline void lgfx_check_flush()
     };
 };
 
-static inline void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p)
+
+// _pending_flush_disp is non-null while a DMA transfer is in flight.
+// We reuse it as the "pending flush" pointer.
+static void lv_disp_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* color_p)
 {
-    // Safety: if previous DMA not yet drained, finish it now before starting the next
+    // If previous DMA transfer hasn't finished, drain it first
     if(_pending_flush_disp)
     {
+        //Q: Does endWrite wait for DMA finish as well?
+        while(_lgfx.dmaBusy());
         _lgfx.endWrite();
         lv_display_flush_ready(_pending_flush_disp);
         _pending_flush_disp = nullptr;
@@ -224,20 +224,20 @@ static inline void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_col
     // Start SPI bus (CS-pin) and start writing pixel data through DMA
     _lgfx.startWrite();
 #if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
-    _lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::rgb565_t *)&color_p->full);
+    _lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::rgb565_t*)color_p);
 #endif
 #ifdef SOOGH_DEV_WT32SC01
-    //_lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::swap565_t *)&color_p->full);
+    //_lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::swap565_t*)color_p);
 #endif
-    // Don't call endWrite() — DMA is running, CPU is free
+    // DMA running — call flush_ready asynchronously via lgfx_check_flush()
     _pending_flush_disp = disp;
 };
 
 #ifdef SOOGH_TOUCH
-static void lv_touchpad_cb(lv_indev_drv_t * indev, lv_indev_data_t * data)
+static void lv_touchpad_cb(lv_indev_t* indev, lv_indev_data_t* data)
 {
     uint16_t touchX, touchY;
-    if(!_lgfx.getTouch( &touchX, &touchY))
+    if(!_lgfx.getTouch(&touchX, &touchY))
     {
         data->state = LV_INDEV_STATE_RELEASED;
         return;
