@@ -22,13 +22,13 @@ Screen::Screen(SooghGUI &gui) : _gui(gui)
 Screen::~Screen() 
 { 
 	SOOGH_DBG("DESTROY %s(%p)", this->name(), this); 
-	lv_obj_del(_screen); _screen = nullptr;
+	lv_obj_delete(_screen); _screen = nullptr;
 };
 
 void Screen::load()
 {
     // FIXME: do this in gui.loop()
-    lv_scr_load_anim(_screen, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, false);
+    lv_scr_load_anim(_screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
     // lv_scr_load(_screen);
 };
 

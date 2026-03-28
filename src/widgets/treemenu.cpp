@@ -178,7 +178,7 @@ void SubMenu::draw_open()
 {
 	lv_obj_t *lv_parent = _btn;
 
-    lv_img_set_src(_btn_img, LV_SYMBOL_DOWN);
+    lv_image_set_src(_btn_img, LV_SYMBOL_DOWN);
 
 	lv_group_t* grp = root()->group_push();
 	lv_group_set_editing(grp, false);
@@ -189,8 +189,8 @@ void SubMenu::draw_open()
 	lv_obj_set_height(_list, 45*_children.size());
 
 	// Draw first (back) button
-	lv_obj_t *btn = lv_list_add_btn(_list, LV_SYMBOL_LEFT, "Back");
-	lv_obj_add_event_cb(btn, SubMenu::close_cb, LV_EVENT_CLICKED, this);
+	lv_obj_t *btn = lv_list_add_button(_list, LV_SYMBOL_LEFT, "Back");
+	lv_obj_add_event(btn, SubMenu::close_cb, LV_EVENT_CLICKED, this);
 	root()->group_add(btn);
 
 	for(auto child: _children)
@@ -200,30 +200,30 @@ void SubMenu::draw_open()
 void SubMenu::draw_close()
 {
 	root()->group_pop();
-	lv_obj_del(_list); _list = nullptr;
+	lv_obj_delete(_list); _list = nullptr;
 
-	lv_img_set_src(_btn_img, LV_SYMBOL_RIGHT);
+	lv_image_set_src(_btn_img, LV_SYMBOL_RIGHT);
 };
 
 void SubMenu::draw_btn(lv_obj_t *lv_list)
 {
 	// construct btn manually to be able to change icon
-	_btn = lv_list_add_btn(lv_list, nullptr, nullptr);
-    _btn_img = lv_img_create(_btn);
-    lv_img_set_src(_btn_img, LV_SYMBOL_RIGHT);
+	_btn = lv_list_add_button(lv_list, nullptr, nullptr);
+    _btn_img = lv_image_create(_btn);
+    lv_image_set_src(_btn_img, LV_SYMBOL_RIGHT);
 	lv_obj_t * label = lv_label_create(_btn);
 	lv_label_set_text(label, _text);
 	lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
 	lv_obj_set_flex_grow(label, 1);
 
 	lv_obj_set_flex_flow(_btn, LV_FLEX_FLOW_ROW_WRAP);
-	lv_obj_add_event_cb(_btn, click_cb, LV_EVENT_CLICKED, this);
+	lv_obj_add_event(_btn, click_cb, LV_EVENT_CLICKED, this);
 
 	root()->group_add(_btn);
 };
 /* static */ void SubMenu::click_cb(lv_event_t *e) // static
 {
-	auto me = static_cast<SubMenu*>(e->user_data);
+	auto me = static_cast<SubMenu*>(lv_event_get_user_data(e));
 	if(me->_open)
 		me->close();
 	else
@@ -232,7 +232,7 @@ void SubMenu::draw_btn(lv_obj_t *lv_list)
 
 /*static*/ void SubMenu::close_cb(lv_event_t *e)
 {
-	SubMenu* me = static_cast<SubMenu*>(e->user_data);
+	SubMenu* me = static_cast<SubMenu*>(lv_event_get_user_data(e));
 	me->close();
 };
 
@@ -304,7 +304,7 @@ TreeMenu::~TreeMenu()
 	while(!_grpstack.empty())
 	{
 		WARNING("free-ing stray lv_group_t from stack!");
-		lv_group_del(_grpstack.top());
+		lv_group_delete(_grpstack.top());
 		_grpstack.pop();
 	};
 };
@@ -328,7 +328,7 @@ void TreeMenu::draw_open()
 
 void TreeMenu::draw_close()
 {
-	lv_obj_del(_list); _list = nullptr;
+	lv_obj_delete(_list); _list = nullptr;
 
 	group_pop();
 };
@@ -350,7 +350,7 @@ void TreeMenu::group_pop()
 		return;
 	};
 	
-	lv_group_del(_grpstack.top());
+	lv_group_delete(_grpstack.top());
 	_grpstack.pop();
 
 	if(!_grpstack.empty())
@@ -401,9 +401,9 @@ bool TreeMenu::sendKey(lv_key_t key)
 	};
 
 	// See if the item owning the object wants to handle the event
-	if(obj->user_data)
+	if(lv_obj_get_user_data(obj))
 	{
-		MenuItem* item = static_cast<MenuItem*>(obj->user_data);
+		MenuItem* item = static_cast<MenuItem*>(lv_obj_get_user_data(obj));
 		if(item->handleKey(key, obj))
 		{
 			return true;
@@ -442,10 +442,10 @@ bool TreeMenu::sendKey(lv_key_t key)
 			if(!editable_or_scrollable)
 			{
 				// DBG("!edit|scrollable: obj.send(PRESSED, RELEASED, SHORT_CLICKED, CLICKED)");
-				lv_event_send(obj, LV_EVENT_PRESSED, lvgl_indev_keyenc);
-				lv_event_send(obj, LV_EVENT_RELEASED, lvgl_indev_keyenc);
-				lv_event_send(obj, LV_EVENT_SHORT_CLICKED, lvgl_indev_keyenc);
-				lv_event_send(obj, LV_EVENT_CLICKED, lvgl_indev_keyenc);
+				lv_obj_send_event(obj,LV_EVENT_PRESSED, lvgl_indev_keyenc);
+				lv_obj_send_event(obj,LV_EVENT_RELEASED, lvgl_indev_keyenc);
+				lv_obj_send_event(obj,LV_EVENT_SHORT_CLICKED, lvgl_indev_keyenc);
+				lv_obj_send_event(obj,LV_EVENT_CLICKED, lvgl_indev_keyenc);
 
 				// lv_group_send_data(grp, LV_KEY_ENTER); // FIXME: Wasnt here orig
 				break;
@@ -453,14 +453,14 @@ bool TreeMenu::sendKey(lv_key_t key)
 			if(lv_group_get_editing(grp))
 			{
 				// DBG("obj.send(PRESSED)");
-				lv_event_send(obj, LV_EVENT_PRESSED, lvgl_indev_keyenc);
+				lv_obj_send_event(obj,LV_EVENT_PRESSED, lvgl_indev_keyenc);
 				//if !long_press_sent || lv_group_object_count(g) <= 1
 				if(lv_group_get_obj_count(grp) < 2)
 				{
 					// DBG("obj.send(RELEASED, SHORT_CLICKED, CLICKED)");
-					lv_event_send(obj, LV_EVENT_RELEASED, lvgl_indev_keyenc);
-					lv_event_send(obj, LV_EVENT_SHORT_CLICKED, lvgl_indev_keyenc);
-					lv_event_send(obj, LV_EVENT_CLICKED, lvgl_indev_keyenc);
+					lv_obj_send_event(obj,LV_EVENT_RELEASED, lvgl_indev_keyenc);
+					lv_obj_send_event(obj,LV_EVENT_SHORT_CLICKED, lvgl_indev_keyenc);
+					lv_obj_send_event(obj,LV_EVENT_CLICKED, lvgl_indev_keyenc);
 
 					// DBG("group.send(KEY_ENTER)");
 					lv_group_send_data(grp, LV_KEY_ENTER);

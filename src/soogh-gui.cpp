@@ -110,8 +110,8 @@ bool SooghGUI::handle(soogh_event_t e)
             if(_msgbox)
             {
 				// make close cb be called & close already
-				lv_event_send(_msgbox, LV_EVENT_VALUE_CHANGED, lvgl_indev_keyenc);
-                lv_msgbox_close(_msgbox); 
+				lv_obj_send_event(_msgbox, LV_EVENT_VALUE_CHANGED, lvgl_indev_keyenc);
+                lv_msgbox_close(_msgbox);
 				_msgbox = nullptr;
                 SOOGH_DBG("_msgbox closed.");
                 return true;
@@ -212,8 +212,6 @@ void SooghGUI::popGroup()
 
 void SooghGUI::showMessage(const char* title, const char* text, lv_event_cb_t onclose)
 {
-    static const char * btns[] ={""};
-
     // Close the previous, if still one open
     if(_msgbox)
     {
@@ -221,14 +219,16 @@ void SooghGUI::showMessage(const char* title, const char* text, lv_event_cb_t on
         lv_msgbox_close(_msgbox);
     };
 
-    //lv_layer_top()
-    _msgbox = lv_msgbox_create(NULL, title, text, btns, true);
+    // v9 msgbox API: create then configure
+    _msgbox = lv_msgbox_create(NULL);
+    lv_msgbox_add_title(_msgbox, title);
+    lv_msgbox_add_text(_msgbox, text);
+    lv_msgbox_add_close_button(_msgbox);
 	if(onclose)
 	{
 		DBG("Adding onclose!");
-    	lv_obj_add_event_cb(_msgbox, onclose, LV_EVENT_VALUE_CHANGED, NULL);
+    	lv_obj_add_event(_msgbox, onclose, LV_EVENT_VALUE_CHANGED, NULL);
 	};
-    // lv_obj_t *but = lv_msgbox_get_btns(mbox1);
     lv_obj_center(_msgbox);
 };
 

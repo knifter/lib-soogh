@@ -13,8 +13,8 @@ NumberField::NumberField(MenuItem *parent, const char *name, double *f, double m
 void NumberField::draw_btn(lv_obj_t *lv_list)
 {
 	// TODO: can this be moved to MenuItem?
-	_btn = lv_list_add_btn(lv_list, nullptr, _text);
-	lv_obj_add_event_cb(_btn, btn_clicked_cb, LV_EVENT_CLICKED, this);
+	_btn = lv_list_add_button(lv_list, nullptr, _text);
+	lv_obj_add_event(_btn, btn_clicked_cb, LV_EVENT_CLICKED, this);
 	lv_obj_set_flex_flow(_btn, LV_FLEX_FLOW_ROW_WRAP);
 	lv_obj_set_style_pad_row(_btn, 3, 0);
 
@@ -28,7 +28,7 @@ void NumberField::draw_btn(lv_obj_t *lv_list)
 
 /* static */ void NumberField::btn_clicked_cb(lv_event_t *e)
 {
-	NumberField* me = static_cast<NumberField*>(e->user_data);
+	NumberField* me = static_cast<NumberField*>(lv_event_get_user_data(e));
 	me->open();
 };
 
@@ -121,13 +121,13 @@ void NumberField::draw_open()
 		lv_spinbox_set_range(_spinbox, min_value*factor, max_value*factor);
 		lv_spinbox_set_digit_format(_spinbox, digits, digits - decimals);
 		lv_spinbox_set_value(_spinbox, (*value) * factor);
-		lv_spinbox_set_pos(_spinbox, _lastpos);
+		lv_spinbox_set_cursor_pos(_spinbox, _lastpos);
 		lv_obj_set_style_bg_color(_spinbox, _edit ? COLOR_RED : COLOR_BLUE, LV_PART_CURSOR);
 
     	// DBG("min/max = %f/%f, val = %f, digs = %d, dec = %d, mult = %f", _min, _max, *value, digits, _decimals, pow(10, _decimals));
 
 		// set a ref to this class to make MenuItem call sendKey()
-		_spinbox->user_data = this;
+		lv_obj_set_user_data(_spinbox, this);
 		
 		lv_group_add_obj(grp, _spinbox);
 	};
@@ -156,7 +156,7 @@ void NumberField::draw_open()
 			lv_obj_align_to(_btns, _spinbox, LV_ALIGN_OUT_TOP_MID, 0, 0);
 		};
 
-		lv_obj_add_event_cb(_btns, btns_cb, LV_EVENT_VALUE_CHANGED, this);
+		lv_obj_add_event(_btns, btns_cb, LV_EVENT_VALUE_CHANGED, this);
 	};
 #endif // SOOGH_TOUCH
 };
@@ -166,9 +166,9 @@ void NumberField::draw_close()
 	// store cursor position
 	_lastpos = log10( lv_spinbox_get_step(_spinbox) );
 
-	lv_obj_del(_spinbox); 	_spinbox=nullptr;
+	lv_obj_delete(_spinbox); _spinbox=nullptr;
 #ifdef SOOGH_TOUCH
-	lv_obj_del(_btns);		_btns = nullptr;
+	lv_obj_delete(_btns);    _btns = nullptr;
 #endif
 
 	// modify btn
@@ -183,7 +183,7 @@ void NumberField::draw_close()
 	// lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t * obj = lv_event_get_target(e);
 	uint32_t id = lv_btnmatrix_get_selected_btn(obj);
-	NumberField* me = static_cast<NumberField*>(e->user_data);
+	NumberField* me = static_cast<NumberField*>(lv_event_get_user_data(e));
 	switch(id)
 	{
 		case 0: lv_spinbox_step_prev(me->_spinbox); break;

@@ -10,14 +10,14 @@ ActionField::ActionField(MenuItem *parent, const char *name, treemenu_cb_t *func
 
 void ActionField::draw_btn(lv_obj_t *lv_list)
 {
-	lv_obj_t *btn = lv_list_add_btn(lv_list, _lv_icon, _text);
-	lv_obj_add_event_cb(btn, click_cb, LV_EVENT_CLICKED, this);
+	lv_obj_t *btn = lv_list_add_button(lv_list, _lv_icon, _text);
+	lv_obj_add_event(btn, click_cb, LV_EVENT_CLICKED, this);
 
 	root()->group_add(btn);
 };
 /* static */ void ActionField::click_cb(lv_event_t *e)
 {
-	ActionField* me = static_cast<ActionField*>(e->user_data);
+	ActionField* me = static_cast<ActionField*>(lv_event_get_user_data(e));
 
 	if(me->_change_cb)
 		me->_change_cb(me, me->_change_data);

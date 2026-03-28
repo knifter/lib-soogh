@@ -18,8 +18,8 @@ SelectorField::SelectorField(MenuItem *parent, const char *name, int32_t* target
 void SelectorField::draw_btn(lv_obj_t *lv_list)
 {
 	// TODO: can this be moved to MenuItem?
-	_btn = lv_list_add_btn(lv_list, nullptr, _text);
-	lv_obj_add_event_cb(_btn, btn_click_cb, LV_EVENT_CLICKED, this);
+	_btn = lv_list_add_button(lv_list, nullptr, _text);
+	lv_obj_add_event(_btn, btn_click_cb, LV_EVENT_CLICKED, this);
 	lv_obj_set_flex_flow(_btn, LV_FLEX_FLOW_ROW_WRAP);
 	lv_obj_set_style_pad_row(_btn, 3, 0);
 
@@ -44,7 +44,7 @@ void SelectorField::draw_btn(lv_obj_t *lv_list)
 };
 /* static */ void SelectorField::btn_click_cb(lv_event_t *e)
 {
-	SelectorField* me = static_cast<SelectorField*>(e->user_data);
+	SelectorField* me = static_cast<SelectorField*>(lv_event_get_user_data(e));
 	me->open();
 };
 
@@ -71,9 +71,9 @@ void SelectorField::draw_open()
 		while(item->shortname)
 		{
 			// create button
-			lv_obj_t *btn = lv_list_add_btn(_list, nullptr, item->longname ? item->longname : item->shortname);
-			btn->user_data = this;			
-			lv_obj_add_event_cb(btn, choose_click_cb, LV_EVENT_CLICKED, const_cast<item_t*>(item));
+			lv_obj_t *btn = lv_list_add_button(_list, nullptr, item->longname ? item->longname : item->shortname);
+			lv_obj_set_user_data(btn, this);
+			lv_obj_add_event(btn, choose_click_cb, LV_EVENT_CLICKED, const_cast<item_t*>(item));
 			lv_group_add_obj(grp, btn);
 
 			// set to currently selected item
@@ -86,9 +86,9 @@ void SelectorField::draw_open()
 };
 /* static */ void SelectorField::choose_click_cb(lv_event_t *e)
 {
-    lv_obj_t *btn = lv_event_get_target(e);
-	SelectorField* me = static_cast<SelectorField*>(btn->user_data);
-	const item_t* item = static_cast<const item_t*>(e->user_data);
+    lv_obj_t *btn = (lv_obj_t*) lv_event_get_target(e);
+	SelectorField* me = static_cast<SelectorField*>(lv_obj_get_user_data(btn));
+	const item_t* item = static_cast<const item_t*>(lv_event_get_user_data(e));
 
 	uint32_t prv_id = *(me->_target);
 	*(me->_target) = item->id;
@@ -109,7 +109,7 @@ bool SelectorField::handleKey(lv_key_t key, lv_obj_t*)
 
 void SelectorField::draw_close()
 {
-	lv_obj_del(_list); _list = nullptr;
+	lv_obj_delete(_list); _list = nullptr;
 
 	// lv_obj_clear_state(_btn, LV_STATE_CHECKED);
 

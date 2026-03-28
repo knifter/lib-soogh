@@ -4,8 +4,8 @@
 #include "soogh-lgfx.h"
 
 
-#define COLOR_BLACK				lv_color_black()
-#define COLOR_WHITE				lv_color_white()
+#define COLOR_BLACK				lv_color_make(0, 0, 0)
+#define COLOR_WHITE				lv_color_make(255, 255, 255)
 
 #define COLOR_RED			    lv_palette_main(LV_PALETTE_RED)
 #define COLOR_RED_DARK(x)		lv_palette_darken (LV_PALETTE_RED, x)

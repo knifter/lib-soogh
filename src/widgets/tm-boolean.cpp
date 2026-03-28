@@ -3,7 +3,7 @@
 /*** BooleanField ***************************************************************************************/
 void BooleanField::draw_btn(lv_obj_t *lv_list)
 {
-	lv_obj_t *btn = lv_list_add_btn(lv_list, nullptr, _text);
+	lv_obj_t *btn = lv_list_add_button(lv_list, nullptr, _text);
 	lv_obj_set_flex_flow(btn, LV_FLEX_FLOW_ROW_WRAP);
 	lv_obj_set_style_pad_row(btn, 3, 0);
 
@@ -24,22 +24,22 @@ void BooleanField::draw_btn(lv_obj_t *lv_list)
 	if(*value == true)
     	lv_obj_add_state(_sw, LV_STATE_CHECKED);
 
-	lv_obj_add_event_cb(_sw, click_cb, LV_EVENT_CLICKED, this);
-	lv_obj_add_event_cb(btn, click_cb, LV_EVENT_CLICKED, this);
+	lv_obj_add_event(_sw, click_cb, LV_EVENT_CLICKED, this);
+	lv_obj_add_event(btn, click_cb, LV_EVENT_CLICKED, this);
 
 	root()->group_add(btn);
 };
 /* static */ void BooleanField::click_cb(lv_event_t *e)
 {
-	BooleanField* me = static_cast<BooleanField*>(e->user_data);
+	BooleanField* me = static_cast<BooleanField*>(lv_event_get_user_data(e));
 
 	bool old_val = *(me->value);
 
 	// fake click on checkbox if click was on btn
-	if(e->target != me->_sw)
+	if(lv_event_get_target(e) != me->_sw)
 	{
-		lv_event_send(me->_sw, LV_EVENT_PRESSED, nullptr);
-		lv_event_send(me->_sw, LV_EVENT_RELEASED, nullptr);
+		lv_obj_send_event(me->_sw, LV_EVENT_PRESSED, nullptr);
+		lv_obj_send_event(me->_sw, LV_EVENT_RELEASED, nullptr);
 	};
 
 	bool new_value = lv_obj_has_state(me->_sw, LV_STATE_CHECKED);

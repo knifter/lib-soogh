@@ -7,24 +7,21 @@
 #include <lvgl.h>
 #include "esp_heap_caps.h"
 
-// Draw buffer(s)
-#define LV_BUF_SIZE					(DISPLAY_HEIGHT*DISPLAY_WIDTH/10)
-lv_disp_draw_buf_t  	_lv_draw_buf;
-lv_color_t*             _lv_color_buf1 = nullptr; 
-lv_color_t*             _lv_color_buf2 = nullptr;
+#define LV_BUF_SIZE         (DISPLAY_HEIGHT*DISPLAY_WIDTH/10)
+static uint8_t*             _lv_buf1 = nullptr;
+static uint8_t*             _lv_buf2 = nullptr;
 
-// Display driver
-lv_disp_drv_t 		    _lv_display_drv;        /*Descriptor of a display driver*/
-static inline void lv_disp_cb(lv_disp_drv_t*, const lv_area_t*, lv_color_t*);
-static inline void lv_busy_wait_cb(lv_disp_drv_t*);
-static inline void lgfx_check_flush();
+static lv_display_t*        _lv_disp = nullptr;
+static lv_display_t*        _pending_flush_disp = nullptr;
+static void                 lv_disp_cb(lv_display_t*, const lv_area_t*, uint8_t*);
+static inline void          lv_flush_wait_cb(lv_display_t*);
+static inline void          lgfx_check_flush();
 
 #ifdef SOOGH_TOUCH
-    lv_indev_drv_t 		_lv_touch_drv;           /*Descriptor of a input device driver*/
-    static void lv_touchpad_cb(lv_indev_drv_t *, lv_indev_data_t *);
+    static lv_indev_t*      _lv_touch_indev = nullptr;
+    static void lv_touchpad_cb(lv_indev_t*, lv_indev_data_t*);
 #endif
 
-// Keys2LVGL conversion
 #ifdef SOOGH_ENCODER_KEYS
     uint32_t            lvgl_enc_last_key = 0;
     bool                lvgl_enc_pressed = false;
@@ -44,30 +41,30 @@ LGFX_SC01::LGFX_SC01(void)
 {
     {
         auto cfg = _bus_instance.config();
-        cfg.freq_write = 40000000;    
-        cfg.pin_wr = 47;             
-        cfg.pin_rd = -1;             
-        cfg.pin_rs = 0;              
+        cfg.freq_write = 40000000;
+        cfg.pin_wr = 47;
+        cfg.pin_rd = -1;
+        cfg.pin_rs = 0;
 
         // gfx data interface, 8bit MCU (8080)
-        cfg.pin_d0 = 9;              
-        cfg.pin_d1 = 46;             
-        cfg.pin_d2 = 3;              
-        cfg.pin_d3 = 8;              
-        cfg.pin_d4 = 18;             
-        cfg.pin_d5 = 17;             
-        cfg.pin_d6 = 16;             
-        cfg.pin_d7 = 15;             
-        _bus_instance.config(cfg);   
+        cfg.pin_d0 = 9;
+        cfg.pin_d1 = 46;
+        cfg.pin_d2 = 3;
+        cfg.pin_d3 = 8;
+        cfg.pin_d4 = 18;
+        cfg.pin_d5 = 17;
+        cfg.pin_d6 = 16;
+        cfg.pin_d7 = 15;
+        _bus_instance.config(cfg);
 
-        _panel_instance.setBus(&_bus_instance);      
+        _panel_instance.setBus(&_bus_instance);
     };
 
     {
-        auto cfg = _panel_instance.config();    
-        cfg.pin_cs           =    -1;  
-        cfg.pin_rst          =    4;  
-        cfg.pin_busy         =    -1; 
+        auto cfg = _panel_instance.config();
+        cfg.pin_cs           =    -1;
+        cfg.pin_rst          =    4;
+        cfg.pin_busy         =    -1;
 
         // Switch W/H because we rotate the display
         #if SOOGH_DISP_ROTATE == 1
@@ -92,39 +89,39 @@ LGFX_SC01::LGFX_SC01(void)
     };
 
     {
-        auto cfg = _light_instance.config();    
-        cfg.pin_bl = 45;              
-        cfg.invert = false;           
-        cfg.freq   = 44100;           
-        cfg.pwm_channel = 7;          
+        auto cfg = _light_instance.config();
+        cfg.pin_bl = 45;
+        cfg.invert = false;
+        cfg.freq   = 44100;
+        cfg.pwm_channel = 7;
         _light_instance.config(cfg);
 
-        _panel_instance.setLight(&_light_instance);  
+        _panel_instance.setLight(&_light_instance);
     };
 
 #ifdef SOOGH_TOUCH
-    { 
+    {
         auto cfg = _touch_instance.config();
         cfg.x_min      = 0;
         cfg.x_max      = 319;
-        cfg.y_min      = 0;  
+        cfg.y_min      = 0;
         cfg.y_max      = 479;
-        cfg.pin_int    = 7;  
-        cfg.bus_shared = true; 
+        cfg.pin_int    = 7;
+        cfg.bus_shared = true;
         cfg.offset_rotation = 0;
 
         cfg.i2c_port = 1;
         cfg.i2c_addr = 0x38;
-        cfg.pin_sda  = 6;   
-        cfg.pin_scl  = 5;   
-        cfg.freq = 400000;  
+        cfg.pin_sda  = 6;
+        cfg.pin_scl  = 5;
+        cfg.freq = 400000;
         _touch_instance.config(cfg);
 
-        _panel_instance.setTouch(&_touch_instance);  
+        _panel_instance.setTouch(&_touch_instance);
     };
 #endif
 
-    setPanel(&_panel_instance); 
+    setPanel(&_panel_instance);
 };
 LGFX_SC01 _lgfx;
 #endif
@@ -144,17 +141,18 @@ void serial_log_cb(const char* line)
 
 void lvgl_init()
 {
-    _lv_color_buf1 = (lv_color_t*) heap_caps_malloc(LV_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
-    if(!_lv_color_buf1)
+    // Allocate DMA-capable byte buffers (RGB565 = 2 bytes per pixel)
+    _lv_buf1 = (uint8_t*) heap_caps_malloc(LV_BUF_SIZE * 2, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
+    if(!_lv_buf1)
     {
-        // lv_color_t 			    _lv_color_buf1[LV_BUF_SIZE];
+        //TODO: handle this!
     };
-    _lv_color_buf2 = nullptr;
+    _lv_buf2 = nullptr;
 #ifdef SOOGH_DOUBLEBUF
-    _lv_color_buf2 = (lv_color_t*) heap_caps_malloc(LV_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
-    if(!_lv_color_buf2)
+    _lv_buf2 = (uint8_t*) heap_caps_malloc(LV_BUF_SIZE * 2, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
+    if(!_lv_buf2)
     {
-        // lv_color_t 			    _lv_color_buf2[LV_BUF_SIZE];
+        //TODO: handle this!
     };
 #endif
 
@@ -166,13 +164,13 @@ void lvgl_init()
 
     lv_disp_draw_buf_init(&_lv_draw_buf, _lv_color_buf1, _lv_color_buf2, LV_BUF_SIZE);
 
-    lv_disp_drv_init(&_lv_display_drv);          /*Basic initialization*/
-    _lv_display_drv.flush_cb = lv_disp_cb;       /*Set your driver function*/
-    _lv_display_drv.wait_cb = lv_busy_wait_cb;  /* Called when waiting for a free display buffer in lv_timer_handler, must be used to check DMA transfer has finished. Kind of a v8.3 hack. */
-    _lv_display_drv.draw_buf = &_lv_draw_buf;    /*Assign the buffer to the display*/
-    _lv_display_drv.hor_res = DISPLAY_WIDTH;     /*Set the horizontal resolution of the display*/
-    _lv_display_drv.ver_res = DISPLAY_HEIGHT;    /*Set the vertical resolution of the display*/
-    lv_disp_drv_register(&_lv_display_drv);      /*Finally register the driver*/
+    // Display creation
+    lv_display_t* _lv_display = lv_display_create(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    lv_display_set_color_format(_lv_display, LV_COLOR_FORMAT_RGB565);
+    lv_display_set_buffers(_lv_display, _lv_buf1, _lv_buf2, LV_BUF_SIZE * 2, LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_flush_cb(_lv_display, lv_disp_cb);
+    lv_display_set_flush_wait_cb(_lv_display, lv_flush_wait_cb);
+    
 
 #ifdef SOOGH_TOUCH
     lv_indev_drv_init(&_lv_touch_drv);             /*Basic initialization*/
@@ -182,20 +180,18 @@ void lvgl_init()
 #endif // GUI_TOUCH
 
 #ifdef SOOGH_ENCODER_KEYS
-    lv_indev_drv_init(&_lv_keys_drv);             /*Basic initialization*/
-    _lv_keys_drv.type = LV_INDEV_TYPE_ENCODER;    
-    _lv_keys_drv.read_cb = lv_keys_cb;      /*Set your driver function*/
-    lvgl_indev_keyenc = lv_indev_drv_register(&_lv_keys_drv);         /*Finally register the driver*/
+    lvgl_indev_keyenc = lv_indev_create();
+    lv_indev_set_type(lvgl_indev_keyenc, LV_INDEV_TYPE_ENCODER);
+    lv_indev_set_read_cb(lvgl_indev_keyenc, lv_keys_cb);
+
     lvgl_enc_last_key = 0;
     lvgl_enc_pressed = false;
-#endif // SOOGH_ENCODER_KEYS
+#endif
 
     _lgfx.initDMA();
 };
 
-static lv_disp_drv_t* _pending_flush_disp = nullptr;
-
-static inline void lv_busy_wait_cb(lv_disp_drv_t*)
+static inline void lv_flush_wait_cb(lv_display_t*)
 {
     lgfx_check_flush();
 
@@ -207,7 +203,7 @@ static inline void lgfx_check_flush()
     if(_pending_flush_disp && !_lgfx.dmaBusy())
     {
         _lgfx.endWrite();
-        lv_disp_flush_ready(_pending_flush_disp);
+        lv_display_flush_ready(_lv_disp);
         _pending_flush_disp = nullptr;
     };
 };
@@ -218,7 +214,7 @@ static inline void lv_disp_cb(lv_disp_drv_t* disp, const lv_area_t* area, lv_col
     if(_pending_flush_disp)
     {
         _lgfx.endWrite();
-        lv_disp_flush_ready(_pending_flush_disp);
+        lv_display_flush_ready(_pending_flush_disp);
         _pending_flush_disp = nullptr;
     };
 
@@ -249,19 +245,17 @@ static void lv_touchpad_cb(lv_indev_drv_t * indev, lv_indev_data_t * data)
     data->state = LV_INDEV_STATE_PRESSED;
     data->point.x = touchX;
     data->point.y = touchY;
-
-    // Serial.printf("Touch = (%d, %d)\n", touchX, touchY);
 };
 #endif
 
 #ifdef SOOGH_ENCODER_KEYS
-static void lv_keys_cb(lv_indev_drv_t * indev, lv_indev_data_t * data)
+static void lv_keys_cb(lv_indev_t* indev, lv_indev_data_t* data)
 {
-    data->key = lvgl_enc_last_key;            /*Get the last pressed or released key*/
+    data->key = lvgl_enc_last_key;
 
-    if(lvgl_enc_pressed) 
+    if(lvgl_enc_pressed)
         data->state = LV_INDEV_STATE_PRESSED;
     else
         data->state = LV_INDEV_STATE_RELEASED;
 };
-#endif // SOOGH_ENCODER_KEYS
+#endif

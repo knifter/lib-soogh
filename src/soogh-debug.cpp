@@ -8,11 +8,11 @@ void debug_event_all(lv_event_t *e)
 	info[0] = '\0';
 
 	// print ref. obj ptr
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * obj = (lv_obj_t*) lv_event_get_target(e);
 	if(obj)
 		snprintf(info, 32, "%p", obj);
 
-	switch(e->code)
+	switch(lv_event_get_code(e))
 	{
 	    /** Input device events = 1*/
 		case LV_EVENT_PRESSED: 				DBG("%s: PRESSED", info); return;
@@ -67,7 +67,7 @@ void debug_event_all(lv_event_t *e)
 		case LV_EVENT_LAYOUT_CHANGED:      	DBG("%s: LAYOUT_CHANGED", info); return;
 		case LV_EVENT_GET_SELF_SIZE:       	DBG("%s: GET_SELF_SIZE", info); return;
 
-		default: DBG("%s: e.code = %d", info, e->code); return;
+		default: DBG("%s: e.code = %d", info, lv_event_get_code(e)); return;
 	};
 };
 
@@ -77,7 +77,7 @@ void debug_event_input(lv_event_t *e)
 	info[0] = '\0';
 
 	// print ref. obj ptr
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * obj = (lv_obj_t*) lv_event_get_target(e);
 	if(obj)
 		snprintf(info, 32, "%p", obj);
 
@@ -124,7 +124,7 @@ void debug_event_drawing(lv_event_t * e)
 	info[0] = '\0';
 
 	// print ref. obj ptr
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * obj = (lv_obj_t*) lv_event_get_target(e);
 	if(obj)
 		snprintf(info, 32, "%p", obj);
 
@@ -153,7 +153,7 @@ void debug_event_special(lv_event_t * e)
 	info[0] = '\0';
 
 	// print ref. obj ptr
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * obj = (lv_obj_t*) lv_event_get_target(e);
 	if(obj)
 		snprintf(info, 32, "%p", obj);
 
@@ -178,7 +178,7 @@ void debug_event_other(lv_event_t * e)
 	info[0] = '\0';
 
 	// print ref. obj ptr
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * obj = (lv_obj_t*) lv_event_get_target(e);
 	if(obj)
 		snprintf(info, 32, "%p", obj);
 
