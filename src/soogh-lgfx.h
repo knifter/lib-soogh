@@ -39,13 +39,5 @@
 void lgfx_init();
 void lvgl_init();
 
-#ifdef SOOGH_TOUCH
-    extern lv_indev_drv_t 		_lv_touch_drv;           /*Descriptor of a input device driver*/
-#endif
-
-#ifdef SOOGH_ENCODER_KEYS
-	extern lv_indev_drv_t 		_lv_keys_drv;           /*Descriptor of a input device driver*/
-	extern lv_indev_t*			_lv_indev_keypad;
-#endif
 
 #endif // __SOOGH_LGFX_H

@@ -181,7 +181,7 @@ void NumberField::draw_close()
 /* static */ void NumberField::btns_cb(lv_event_t * e)
 {
 	// lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t * obj = lv_event_get_target(e);
+	lv_obj_t * obj = (lv_obj_t*) lv_event_get_target(e);
 	uint32_t id = lv_btnmatrix_get_selected_btn(obj);
 	NumberField* me = static_cast<NumberField*>(lv_event_get_user_data(e));
 	switch(id)

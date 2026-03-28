@@ -19,7 +19,7 @@ static inline void          lgfx_check_flush();
 
 #ifdef SOOGH_TOUCH
     static lv_indev_t*      _lv_touch_indev = nullptr;
-    static void lv_touchpad_cb(lv_indev_t*, lv_indev_data_t*);
+    static void             lv_touchpad_cb(lv_indev_t*, lv_indev_data_t*);
 #endif
 
 #ifdef SOOGH_ENCODER_KEYS
