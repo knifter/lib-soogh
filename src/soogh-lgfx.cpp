@@ -7,12 +7,12 @@
 #include <lvgl.h>
 #include "esp_heap_caps.h"
 
-#define LV_BUF_SIZE         (DISPLAY_HEIGHT*DISPLAY_WIDTH/10)
+#define LV_BUF_SIZE         (DISPLAY_HEIGHT*DISPLAY_WIDTH / 10)         // Atleast 1/10th of the screen, but increase for higher performance
 static uint8_t*             _lv_buf1 = nullptr;
-static uint8_t*             _lv_buf2 = nullptr;
+static uint8_t*             _lv_buf2 = nullptr;                         // Only used in double-buffering, nullptr otherwise
 
-static lv_display_t*        _lv_disp = nullptr;
-static lv_display_t*        _pending_flush_disp = nullptr;
+static lv_display_t*        _lv_disp = nullptr;                         // The LV Display
+static lv_display_t*        _pending_flush_disp = nullptr;              // Probably the above display or nullptr: used in the display flush cb
 static void                 lv_disp_cb(lv_display_t*, const lv_area_t*, uint8_t*);
 static inline void          lv_flush_wait_cb(lv_display_t*);
 static inline void          lgfx_check_flush();
@@ -56,7 +56,8 @@ void lvgl_init()
     _lv_buf1 = (uint8_t*) heap_caps_malloc(LV_BUF_SIZE * 2, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
     if(!_lv_buf1)
     {
-        //TODO: handle this!
+        Serial.printf("Alloc(buf1) failed! Incoming...");
+        // We're in for a world of hurt.. So lets continue, just for the fun of it
     };
     _lv_buf2 = nullptr;
 #ifdef SOOGH_DOUBLEBUF

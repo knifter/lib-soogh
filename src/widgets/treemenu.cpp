@@ -439,6 +439,10 @@ bool TreeMenu::sendKey(lv_key_t key)
     	}
     	return false;
 	}
+
+	---
+	lv_obj_has_flag(obj, LV_OBJ_FLAG_SCROLL_WITH_ARROW)
+
 	*/
 	bool editable_or_scrollable = lv_obj_has_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
 	// DBG("edit_or_scrollable = %s, group.editing = %s", editable_or_scrollable ? "true": "false", lv_group_get_editing(grp) ? "true":"false");
