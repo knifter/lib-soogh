@@ -101,7 +101,7 @@
  *========================*/
 
 /*Align the stride of all layers and images to this bytes*/
-#define LV_DRAW_BUF_STRIDE_ALIGN                4 // TvR: 1->4, match buswidth
+#define LV_DRAW_BUF_STRIDE_ALIGN                1   // TvR: Keep this to 1 for M5Core1/2, otherwise skewed images
 
 /*Align the start address of draw_buf addresses to this bytes*/
 #define LV_DRAW_BUF_ALIGN                       4

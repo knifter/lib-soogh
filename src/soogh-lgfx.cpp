@@ -2,6 +2,8 @@
 
 #include "soogh-conf.h"
 
+#include "tools-log.h"
+
 // #define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 #include <lvgl.h>
@@ -11,10 +13,8 @@
 static uint8_t*             _lv_buf1 = nullptr;
 static uint8_t*             _lv_buf2 = nullptr;                         // Only used in double-buffering, nullptr otherwise
 
-static lv_display_t*        _pending_flush_disp = nullptr;              // Probably the above display or nullptr: used in the display flush cb
 static void                 lv_disp_cb(lv_display_t*, const lv_area_t*, uint8_t*);
 static inline void          lv_flush_wait_cb(lv_display_t*);
-static inline void          lgfx_check_flush();
 
 #ifdef SOOGH_TOUCH
     static lv_indev_t*      _lv_touch_indev = nullptr;
@@ -99,51 +99,48 @@ void lvgl_init()
     _lgfx.initDMA();
 };
 
+// Called by LVGL when it doesnt have a free display buffer and needs to wait until one is _flush_ready()
 static inline void lv_flush_wait_cb(lv_display_t*)
 {
-    lgfx_check_flush();
-
-    yield();
-};
-
-static inline void lgfx_check_flush()
-{
-    if(_pending_flush_disp && !_lgfx.dmaBusy())
+    // Wait for the DMA transfer to complete
+    while(_lgfx.dmaBusy())
     {
-        _lgfx.endWrite();
-        lv_display_flush_ready(_pending_flush_disp);
-        _pending_flush_disp = nullptr;
+        yield();
     };
-};
 
+    //done, close the bus
+    _lgfx.endWrite();
+
+    if(_lgfx.getStartCount() != 0)
+    {
+        DBG("E%d", _lgfx.getStartCount());
+    };
+
+    /* "The callback need not call lv_display_flush_ready() since the caller takes care 
+    of that (clearing the display's flushing flag) when your callback returns."
+    */
+};
 
 // _pending_flush_disp is non-null while a DMA transfer is in flight.
 // We reuse it as the "pending flush" pointer.
 static void lv_disp_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* color_p)
 {
-    // If previous DMA transfer hasn't finished, drain it first
-    if(_pending_flush_disp)
-    {
-        //Q: Does endWrite wait for DMA finish as well?
-        while(_lgfx.dmaBusy());
-        _lgfx.endWrite();
-        lv_display_flush_ready(_pending_flush_disp);
-        _pending_flush_disp = nullptr;
-    };
-
     uint32_t w = ( area->x2 - area->x1 + 1 );
     uint32_t h = ( area->y2 - area->y1 + 1 );
 
-    // Start SPI bus (CS-pin) and start writing pixel data through DMA
     _lgfx.startWrite();
+    if(_lgfx.getStartCount() != 1)
+    {
+        DBG("S%d", _lgfx.getStartCount());
+    };
 #if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
     _lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::rgb565_t*)color_p);
 #endif
 #ifdef SOOGH_DEV_WT32SC01
     //_lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::swap565_t*)color_p);
 #endif
-    // DMA running — call flush_ready asynchronously via lgfx_check_flush()
-    _pending_flush_disp = disp;
+
+    // DMA running — lv_flush_wait_cb will take care of the closing of the bus, or call lgfx_check_flush() regularly
 };
 
 #ifdef SOOGH_TOUCH
