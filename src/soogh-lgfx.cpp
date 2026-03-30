@@ -64,7 +64,8 @@ void lvgl_init()
     _lv_buf2 = (uint8_t*) heap_caps_malloc(LV_BUF_SIZE * 2, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
     if(!_lv_buf2)
     {
-        //TODO: handle this!
+        Serial.printf("Alloc(buf2) failed. Disabling Double-Buffering.");
+        _lv_buf2 = nullptr;
     };
 #endif
 
@@ -111,7 +112,7 @@ static inline void lgfx_check_flush()
     if(_pending_flush_disp && !_lgfx.dmaBusy())
     {
         _lgfx.endWrite();
-        lv_display_flush_ready(_lv_disp);
+        lv_display_flush_ready(_pending_flush_disp);
         _pending_flush_disp = nullptr;
     };
 };
