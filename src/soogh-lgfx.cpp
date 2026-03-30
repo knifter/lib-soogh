@@ -11,7 +11,6 @@
 static uint8_t*             _lv_buf1 = nullptr;
 static uint8_t*             _lv_buf2 = nullptr;                         // Only used in double-buffering, nullptr otherwise
 
-static lv_display_t*        _lv_disp = nullptr;                         // The LV Display
 static lv_display_t*        _pending_flush_disp = nullptr;              // Probably the above display or nullptr: used in the display flush cb
 static void                 lv_disp_cb(lv_display_t*, const lv_area_t*, uint8_t*);
 static inline void          lv_flush_wait_cb(lv_display_t*);
