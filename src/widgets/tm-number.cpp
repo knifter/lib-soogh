@@ -65,6 +65,16 @@ bool NumberField::handleKey(lv_key_t key, lv_obj_t*)
 		case LV_KEY_ESC:
 			close();
 			break;
+		case LV_KEY_UP:
+		case LV_KEY_DOWN:
+		case LV_KEY_DEL:
+		case LV_KEY_BACKSPACE:
+		case LV_KEY_NEXT:
+		case LV_KEY_PREV:
+		case LV_KEY_HOME:
+		case LV_KEY_END:
+			// TODO: handle these?
+			break;
 	};
 	export_value();
 
