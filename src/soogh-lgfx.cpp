@@ -111,11 +111,6 @@ static inline void lv_flush_wait_cb(lv_display_t*)
     //done, close the bus
     _lgfx.endWrite();
 
-    if(_lgfx.getStartCount() != 0)
-    {
-        DBG("E%d", _lgfx.getStartCount());
-    };
-
     /* "The callback need not call lv_display_flush_ready() since the caller takes care 
     of that (clearing the display's flushing flag) when your callback returns."
     */
@@ -129,10 +124,6 @@ static void lv_disp_cb(lv_display_t* disp, const lv_area_t* area, uint8_t* color
     uint32_t h = ( area->y2 - area->y1 + 1 );
 
     _lgfx.startWrite();
-    if(_lgfx.getStartCount() != 1)
-    {
-        DBG("S%d", _lgfx.getStartCount());
-    };
 #if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
     _lgfx.pushImageDMA(area->x1, area->y1, w, h, (lgfx::rgb565_t*)color_p);
 #endif
