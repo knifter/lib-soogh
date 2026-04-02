@@ -1,6 +1,8 @@
 #ifndef __SOOOGH_LGFX_WT32SC01_H
 #define __SOOOGH_LGFX_WT32SC01_H
 
+#include "soogh_lgfx.h"
+
 class LGFX_SC01 : public lgfx::LGFX_Device
 {
     lgfx::Panel_ST7796  _panel_instance;  // ST7796UI

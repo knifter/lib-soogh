@@ -1,4 +1,7 @@
 #ifdef SOOGH_DEV_WT32SC01
+
+#include "soogh-lgfx_wt32sc01.h"
+
 LGFX_SC01::LGFX_SC01(void)
 {
     {
