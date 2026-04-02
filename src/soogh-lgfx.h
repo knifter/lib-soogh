@@ -4,31 +4,21 @@
 // We need to define these in this order
 #include "soogh-conf.h"
 
-#define LGFX_USE_V1
-#define LGFX_AUTODETECT
-
 #include <LovyanGFX.hpp>
 
-#include <lvgl.h>
+#if defined(SOOGH_DEV_M5CORE)
+    extern LGFX _lgfx;
+#endif
 
-#if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
+#if defined(SOOGH_DEV_M5CORE2)
     extern LGFX _lgfx;
 #endif
 
 #ifdef SOOGH_DEV_WT32SC01
-    class LGFX_SC01 : public lgfx::LGFX_Device
-    {
-        lgfx::Panel_ST7796  _panel_instance;  // ST7796UI
-        lgfx::Bus_Parallel8 _bus_instance;    // MCU8080 8B
-        lgfx::Light_PWM     _light_instance;
-    #ifdef SOOGH_TOUCH
-        lgfx::Touch_FT5x06  _touch_instance;
-    #endif
-        public:
-            LGFX_SC01(void);
-    };
-    extern LGFX_SC01 _lgfx;
+    #include "soogh_lgfx_wt32sc01.h"
 #endif
+
+#include <lvgl.h>
 
 #ifdef SOOGH_ENCODER_KEYS
     extern uint32_t     lvgl_enc_last_key;

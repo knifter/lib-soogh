@@ -4,7 +4,6 @@
 
 #include "tools-log.h"
 
-// #define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 #include <lvgl.h>
 #include "esp_heap_caps.h"
@@ -30,11 +29,8 @@ static inline void          lv_flush_wait_cb(lv_display_t*);
 
 // Device Configs
 #if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
-// M%Stack has Lovyan Auto-detect, apparently
 LGFX _lgfx;
 #endif
-
-#include "soogh_lgfx_wt32sc01.h"
 
 void lgfx_init()
 {

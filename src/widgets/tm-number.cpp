@@ -1,6 +1,8 @@
 #include "treemenu.h"
 
+#include "soogh-conf.h"
 #include "soogh-color.h"
+
 #include <Arduino.h>
 #include <math.h>
 

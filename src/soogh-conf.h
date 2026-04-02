@@ -1,11 +1,11 @@
 #ifndef __SOOGH_CONF_H
 #define __SOOGH_CONF_H
 
-// #define SOOGH_TOUCH
-// #define SOOGH_DOUBLEBUF // NEEDS TESTINGS!
+// Application defines: Add them to platform.io
+// #define SOOGH_DOUBLEBUF
 // #define SOOGH_KEYPAD
-// #define SOOGH_DEV_M5CORE
-// #define SOOGH_DEV_SC01
+
+#define LGFX_USE_V1
 
 // #define BOOTSCREEN_TIMEOUT_MS		5000
 #ifdef SOOGH_DEV_M5CORE
@@ -13,6 +13,10 @@
 	#define DISPLAY_WIDTH				320
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_ENCODER_KEYS          1
+
+// #define LGFX_M5STACK         
+    #define LGFX_AUTODETECT
+
 #endif
 
 #ifdef SOOGH_DEV_M5CORE2
@@ -20,14 +24,19 @@
 	#define DISPLAY_WIDTH				320
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_ENCODER_KEYS          1
+    #define SOOGH_TOUCH                 1
+
+// #define LGFX_M5STACK_CORE2
+    #define LGFX_AUTODETECT
 #endif
 
 #ifdef SOOGH_DEV_WT32SC01
-    #define SOOGH_TOUCH
-    #define SOOGH_DOUBLEBUF
-    #define SOOGH_DISP_ROTATE           1
     #define DISPLAY_HEIGHT				320
     #define DISPLAY_WIDTH				480
+
+    #define SOOGH_DISP_ROTATE           1
+    #define SOOGH_TOUCH
+    #define SOOGH_DOUBLEBUF
 #endif
 
 #endif // __SOOGH_CONF_H

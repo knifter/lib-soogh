@@ -1,10 +1,13 @@
 #ifndef __TREEMENU_H
 #define __TREEMENU_H
 
+#include "soogh-conf.h"
+
 #include <lvgl.h>
 #include <list>
 #include <stack>
 #include <sys/types.h>
+
 
 /*
 	MenuItem (drawable: draw_item, draw_open)
