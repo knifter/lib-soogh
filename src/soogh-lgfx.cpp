@@ -27,10 +27,7 @@ static inline void          lv_flush_wait_cb(lv_display_t*);
     static void lv_keys_cb(lv_indev_t*, lv_indev_data_t*);
 #endif
 
-// Device Configs
-#if defined(SOOGH_DEV_M5CORE) || defined(SOOGH_DEV_M5CORE2)
 LGFX _lgfx;
-#endif
 
 void lgfx_init()
 {

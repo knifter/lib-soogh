@@ -2,7 +2,7 @@
 
 #include "soogh-lgfx_wt32sc01.h"
 
-LGFX_SC01::LGFX_SC01(void)
+LGFX::LGFX(void)
 {
     {
         auto cfg = _bus_instance.config();
@@ -88,5 +88,6 @@ LGFX_SC01::LGFX_SC01(void)
 
     setPanel(&_panel_instance);
 };
-LGFX_SC01 _lgfx;
+
+LGFX _lgfx;
 #endif

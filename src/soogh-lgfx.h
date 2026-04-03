@@ -6,18 +6,6 @@
 
 #include <LovyanGFX.hpp>
 
-#if defined(SOOGH_DEV_M5CORE)
-    extern LGFX _lgfx;
-#endif
-
-#if defined(SOOGH_DEV_M5CORE2)
-    extern LGFX _lgfx;
-#endif
-
-#ifdef SOOGH_DEV_WT32SC01
-    #include "soogh_lgfx_wt32sc01.h"
-#endif
-
 #include <lvgl.h>
 
 #ifdef SOOGH_ENCODER_KEYS
@@ -25,6 +13,8 @@
     extern bool         lvgl_enc_pressed = false;
     extern lv_indev_t*  lvgl_indev_keyenc = nullptr;
 #endif
+
+extern LGFX _lgfx;
 
 void lgfx_init();
 void lvgl_init();

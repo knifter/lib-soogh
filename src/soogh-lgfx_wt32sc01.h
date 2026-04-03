@@ -1,20 +1,28 @@
 #ifndef __SOOOGH_LGFX_WT32SC01_H
 #define __SOOOGH_LGFX_WT32SC01_H
 
+#ifdef SOOGH_DEV_WT32SC01
+
 #include "soogh_lgfx.h"
 
-class LGFX_SC01 : public lgfx::LGFX_Device
+
+#include "soogh-lgfx.h"
+#include <LovyanGFX.hpp>
+
+class LGFX : public lgfx::LGFX_Device
 {
-    lgfx::Panel_ST7796  _panel_instance;  // ST7796UI
-    lgfx::Bus_Parallel8 _bus_instance;    // MCU8080 8B
-    lgfx::Light_PWM     _light_instance;
-#ifdef SOOGH_TOUCH
-    lgfx::Touch_FT5x06  _touch_instance;
-#endif
     public:
-        LGFX_SC01(void);
+        lgfx::Panel_ST7796  _panel_instance;  // ST7796UI
+        lgfx::Bus_Parallel8 _bus_instance;    // MCU8080 8B
+        lgfx::Light_PWM     _light_instance;
+#ifdef SOOGH_TOUCH
+        lgfx::Touch_FT5x06  _touch_instance;
+#endif
+        LGFX(void);
 };
 
-extern LGFX_SC01 _lgfx;
+extern LGFX _lgfx;
+
+#endif
 
 #endif // __SOOOGH_LGFX_WT32SC01_H
