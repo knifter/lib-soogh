@@ -21,9 +21,9 @@
 #include <lvgl.h>
 
 #ifdef SOOGH_ENCODER_KEYS
-    extern uint32_t     lvgl_enc_last_key;
-    extern bool         lvgl_enc_pressed;
-    extern lv_indev_t*  lvgl_indev_keyenc;
+    extern uint32_t     lvgl_enc_last_key = 0;
+    extern bool         lvgl_enc_pressed = false;
+    extern lv_indev_t*  lvgl_indev_keyenc = nullptr;
 #endif
 
 void lgfx_init();

@@ -110,7 +110,9 @@ bool SooghGUI::handle(soogh_event_t e)
             if(_msgbox)
             {
 				// make close cb be called & close already
+#ifdef SOOGH_ENCODER_KEYS
 				lv_obj_send_event(_msgbox, LV_EVENT_VALUE_CHANGED, lvgl_indev_keyenc);
+#endif // SOOGH_ENCODER_KEYS
                 lv_msgbox_close(_msgbox);
 				_msgbox = nullptr;
                 SOOGH_DBG("_msgbox closed.");
@@ -194,7 +196,9 @@ void SooghGUI::popScreen(Screen* scr)
 void SooghGUI::pushGroup(lv_group_t *grp)
 {
 	_groupstack.push(grp);
+#ifdef SOOGH_ENCODER_KEYS
 	lv_indev_set_group(lvgl_indev_keyenc, grp);
+#endif
 };
 
 void SooghGUI::popGroup()
@@ -202,12 +206,16 @@ void SooghGUI::popGroup()
 	if(_scrstack.empty())
 	{
 		WARNING("POP(group) on empty stack.");
+#ifdef SOOGH_ENCODER_KEYS
 		lv_indev_set_group(lvgl_indev_keyenc, nullptr);
+#endif
 		return;
 	};
 
 	_groupstack.pop();
+#ifdef SOOGH_ENCODER_KEYS
 	lv_indev_set_group(lvgl_indev_keyenc, _groupstack.top());
+#endif
 };
 
 void SooghGUI::showMessage(const char* title, const char* text, lv_event_cb_t onclose)

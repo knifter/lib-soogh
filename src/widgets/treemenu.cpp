@@ -338,7 +338,9 @@ lv_group_t* TreeMenu::group_push()
 {
 	lv_group_t* g = lv_group_create();
 	_grpstack.push(g);
+#ifdef SOOGH_ENCODER_KEYS
 	lv_indev_set_group(lvgl_indev_keyenc,  _grpstack.top());
+#endif
 	return g;
 };
 
@@ -353,8 +355,10 @@ void TreeMenu::group_pop()
 	lv_group_delete(_grpstack.top());
 	_grpstack.pop();
 
+#ifdef SOOGH_ENCODER_KEYS
 	if(!_grpstack.empty())
 		lv_indev_set_group(lvgl_indev_keyenc,  _grpstack.top());
+#endif
 };
 
 lv_group_t* TreeMenu::group_top()
@@ -475,26 +479,29 @@ bool TreeMenu::sendKey(lv_key_t key)
 			if(!editable_or_scrollable)
 			{
 				// DBG("!edit|scrollable: obj.send(PRESSED, RELEASED, SHORT_CLICKED, CLICKED)");
+#ifdef SOOGH_ENCODER_KEYS
 				lv_obj_send_event(obj,LV_EVENT_PRESSED, lvgl_indev_keyenc);
 				lv_obj_send_event(obj,LV_EVENT_RELEASED, lvgl_indev_keyenc);
 				lv_obj_send_event(obj,LV_EVENT_SHORT_CLICKED, lvgl_indev_keyenc);
 				lv_obj_send_event(obj,LV_EVENT_CLICKED, lvgl_indev_keyenc);
-
+#endif
 				// lv_group_send_data(grp, LV_KEY_ENTER); // FIXME: Wasnt here orig
 				break;
 			};
 			if(lv_group_get_editing(grp))
 			{
 				// DBG("obj.send(PRESSED)");
+#ifdef SOOGH_ENCODER_KEYS
 				lv_obj_send_event(obj,LV_EVENT_PRESSED, lvgl_indev_keyenc);
-				//if !long_press_sent || lv_group_object_count(g) <= 1
+#endif				//if !long_press_sent || lv_group_object_count(g) <= 1
 				if(lv_group_get_obj_count(grp) < 2)
 				{
 					// DBG("obj.send(RELEASED, SHORT_CLICKED, CLICKED)");
+#ifdef SOOGH_ENCODER_KEYS
 					lv_obj_send_event(obj,LV_EVENT_RELEASED, lvgl_indev_keyenc);
 					lv_obj_send_event(obj,LV_EVENT_SHORT_CLICKED, lvgl_indev_keyenc);
 					lv_obj_send_event(obj,LV_EVENT_CLICKED, lvgl_indev_keyenc);
-
+#endif
 					// DBG("group.send(KEY_ENTER)");
 					lv_group_send_data(grp, LV_KEY_ENTER);
 				}else{
