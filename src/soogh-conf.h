@@ -30,6 +30,15 @@
     #define LGFX_AUTODETECT
 #endif
 
+#ifdef SOOGH_DEV_WAVESHARE_LCD4
+    #define DISPLAY_HEIGHT				480
+    #define DISPLAY_WIDTH				480
+
+    #define SOOGH_DISP_ROTATE           0
+    #define SOOGH_TOUCH
+    #define SOOGH_DOUBLEBUF
+#endif
+
 #ifdef SOOGH_DEV_WT32SC01
     #define DISPLAY_HEIGHT				320
     #define DISPLAY_WIDTH				480

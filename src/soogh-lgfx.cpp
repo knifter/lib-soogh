@@ -8,6 +8,9 @@
 #include <lvgl.h>
 #include "esp_heap_caps.h"
 
+#include "soogh-lgfx_waveshare_LCD4.h"
+#include "soogh-lgfx_wt32sc01.h"
+
 #define LV_BUF_SIZE         (DISPLAY_HEIGHT*DISPLAY_WIDTH / 10)         // Atleast 1/10th of the screen, but increase for higher performance
 static uint8_t*             _lv_buf1 = nullptr;
 static uint8_t*             _lv_buf2 = nullptr;                         // Only used in double-buffering, nullptr otherwise

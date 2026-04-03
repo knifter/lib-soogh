@@ -14,6 +14,9 @@
     extern lv_indev_t*  lvgl_indev_keyenc = nullptr;
 #endif
 
+#include "soogh-lgfx_waveshare_LCD4.h"
+#include "soogh-lgfx_wt32sc01.h"
+
 extern LGFX _lgfx;
 
 void lgfx_init();
