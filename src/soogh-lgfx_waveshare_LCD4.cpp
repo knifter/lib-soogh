@@ -5,7 +5,8 @@
 
 LGFX::LGFX(void)
 {
-    // Panel: ST7701?
+    // Panel: ST7701 -> RGB
+    // Lovyan does NOT support bounce-buffer, might pose tearing problems
     {   
         auto cfg = _panel_instance.config();
         cfg.memory_width  = DISPLAY_WIDTH;
