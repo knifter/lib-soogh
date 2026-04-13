@@ -13,6 +13,7 @@
 	#define DISPLAY_WIDTH				320
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_ENCODER_KEYS          1
+    #define SOOGH_USE_LGFX
 
 // #define LGFX_M5STACK         
     #define LGFX_AUTODETECT
@@ -25,6 +26,8 @@
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_ENCODER_KEYS          1
     #define SOOGH_TOUCH                 1
+    #define SOOGH_USE_LGFX
+
 
 // #define LGFX_M5STACK_CORE2
     #define LGFX_AUTODETECT
@@ -42,10 +45,10 @@
 #ifdef SOOGH_DEV_WT32SC01
     #define DISPLAY_HEIGHT				320
     #define DISPLAY_WIDTH				480
-
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_TOUCH
     #define SOOGH_DOUBLEBUF
+    #define SOOGH_USE_LGFX
 #endif
 
 #endif // __SOOGH_CONF_H

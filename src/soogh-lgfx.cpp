@@ -1,6 +1,9 @@
+
 #include "soogh-lgfx.h"
 
 #include "soogh-conf.h"
+
+#ifdef SOOGH_USE_LGFX
 
 #include "tools-log.h"
 
@@ -156,3 +159,5 @@ static void lv_keys_cb(lv_indev_t* indev, lv_indev_data_t* data)
         data->state = LV_INDEV_STATE_RELEASED;
 };
 #endif
+
+#endif // SOOGH_USE_LGFX

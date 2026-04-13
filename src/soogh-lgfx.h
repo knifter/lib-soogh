@@ -1,8 +1,9 @@
 #ifndef __SOOGH_LGFX_H
 #define __SOOGH_LGFX_H
 
-// We need to define these in this order
 #include "soogh-conf.h"
+
+#ifdef SOOGH_USE_LGFX
 
 #include <LovyanGFX.hpp>
 
@@ -24,3 +25,5 @@ void lvgl_init();
 
 
 #endif // __SOOGH_LGFX_H
+
+#endif // SOOGH_USE_LGFX

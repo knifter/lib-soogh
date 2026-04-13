@@ -5,7 +5,9 @@
 #include "soogh-conf.h"
 #include "soogh-screen.h"
 #include "soogh-event.h"
-#include "soogh-lgfx.h"
+#ifdef SOOGH_USE_LGFX
+    #include "soogh-lgfx.h"
+#endif
 
 #include <tools-log.h>
 #ifdef SOOGH_DEBUG
@@ -25,7 +27,9 @@ SooghGUI::~SooghGUI()
 
 bool SooghGUI::begin()
 {
+#ifdef SOOGH_USE_LGFX
 	lgfx_init();
+#endif
 	lvgl_init();
 	
 	// Empty screen stack

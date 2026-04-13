@@ -6,7 +6,9 @@
 
 
 #include "soogh-conf.h"
-#include "soogh-lgfx.h"
+#ifdef SOOGH_USE_LGFX
+    #include "soogh-lgfx.h"
+#endif
 #include "soogh-screen.h"
 #include "soogh-event.h"
 
