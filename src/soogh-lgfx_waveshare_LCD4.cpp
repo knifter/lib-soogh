@@ -68,12 +68,15 @@ LGFX::LGFX(void)
         cfg.pin_d14     = GPIO_NUM_18;  // R3
         cfg.pin_d15     = GPIO_NUM_17;  // R4
 
-        cfg.pin_henable = GPIO_NUM_42; // ? LCD_CS
+        cfg.pin_henable = GPIO_NUM_40; // DE == H_Enable
         cfg.pin_vsync   = GPIO_NUM_39; // VSYNC
         cfg.pin_hsync   = GPIO_NUM_38; // HSYNC
         cfg.pin_pclk    = GPIO_NUM_41; // LCD_PCLK
 
+        // SPI Interface as well on: IO1=MOSI, IO2=SCLK, IO40=CS
+
         cfg.freq_write  = 14000000; // 160MHz possible?
+        cfg.freq_write  = 10E6; // Bayle has 10 MHz 
 
         cfg.hsync_polarity    = 1;
         cfg.hsync_front_porch = 10;
