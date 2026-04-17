@@ -1,5 +1,7 @@
 #include "soogh.h"
 
+#include <Arduino.h>
+
 #ifndef DBG
 	#define DEBUG_DEVICE        Serial
 	#define DBG(msg, ...)      	DEBUG_DEVICE.printf("%s.%s: " msg "\n", __FILE__, __FUNCTION__, ##__VA_ARGS__)
