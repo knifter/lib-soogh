@@ -5,6 +5,7 @@
 #include <tools-log.h>
 #include <soogh-debug.h>
 #include <math.h>
+#include <soogh-lvgl.h>
 
 /*
 Class hierarchy:

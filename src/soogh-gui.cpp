@@ -5,9 +5,13 @@
 #include "soogh-conf.h"
 #include "soogh-screen.h"
 #include "soogh-event.h"
+#ifdef SOOGH_USE_EPNL
+    #include "soogh-epnl.h"
+#endif
 #ifdef SOOGH_USE_LGFX
     #include "soogh-lgfx.h"
 #endif
+#include "soogh-lvgl.h"
 
 #include <tools-log.h>
 #ifdef SOOGH_DEBUG
@@ -27,6 +31,9 @@ SooghGUI::~SooghGUI()
 
 bool SooghGUI::begin()
 {
+#ifdef SOOGH_USE_EPNL
+	epnl_init();
+#endif
 #ifdef SOOGH_USE_LGFX
 	lgfx_init();
 #endif
@@ -40,6 +47,8 @@ bool SooghGUI::begin()
 	// ScreenPtr scr = std::make_shared<Screen>(*this);
 	// pushScreen(scr);
   	// pushScreen(ScreenType::BOOT);
+
+	// lvgl_start_task();
 
 	return true;
 };
@@ -80,6 +89,8 @@ time_t SooghGUI::loop()
     	lv_tick_inc(now - _prv_tick);
     	_prv_tick = now;
 	};
+
+	vTaskDelay(pdMS_TO_TICKS(10));
     return lv_timer_handler();
 };
 

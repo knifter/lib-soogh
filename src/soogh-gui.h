@@ -6,11 +6,16 @@
 
 
 #include "soogh-conf.h"
+#ifdef SOOGH_USE_EPNL
+    #include "soogh-epnl.h"
+#endif
 #ifdef SOOGH_USE_LGFX
     #include "soogh-lgfx.h"
 #endif
 #include "soogh-screen.h"
 #include "soogh-event.h"
+
+#include "lvgl.h"
 
 typedef std::stack<lv_group_t*> GroupStack;
 

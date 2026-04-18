@@ -28,7 +28,6 @@
     #define SOOGH_TOUCH                 1
     #define SOOGH_USE_LGFX
 
-
 // #define LGFX_M5STACK_CORE2
     #define LGFX_AUTODETECT
 #endif
@@ -40,6 +39,8 @@
     #define SOOGH_DISP_ROTATE           0
     #define SOOGH_TOUCH
     #define SOOGH_DOUBLEBUF
+    #define SOOGH_USE_EPNL
+    // #define SOOGH_USE_LGFX
 #endif
 
 #ifdef SOOGH_DEV_WT32SC01
