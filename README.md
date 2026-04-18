@@ -1,8 +1,9 @@
-# lib-soogh v0.9
+# lib-soogh v0.8
 
-v0.9 is the new LVGL9 version. For the previous LVGL8 use the LVGL8/v0.8 branch
+This is the LVGL8 (old) version. Feature frozen. 
+v0.9 and later are the new LVGL9 version branches.
 
-Object-oriented GUI framework for LVGL v9 + LovyanGFX on ESP32.
+Object-oriented GUI framework for LVGL v8 + LovyanGFX on ESP32.
 
 Provides a screen stack, event system, and hardware bring-up layer for embedded displays. Targets M5Stack Core, M5Stack Core2, WT32-SC01, and Waveshare LCD4.
 
@@ -21,11 +22,10 @@ Provides a screen stack, event system, and hardware bring-up layer for embedded 
 | `SOOGH_DEV_M5CORE`          | M5Stack Core         | 320×240    | No    | No         |
 | `SOOGH_DEV_M5CORE2`         | M5Stack Core2        | 320×240    | Yes   | No         |
 | `SOOGH_DEV_WT32SC01`        | WT32-SC01 (ESP32-S3) | 480×320    | Yes   | Yes        |
-| `SOOGH_DEV_WAVESHARE_LCD4`  | Waveshare LCD4       | 480×480    | Yes   | Yes        |
 
 ## Dependencies
 
-- [LVGL v9.2](https://github.com/lvgl/lvgl)
+- [LVGL v8.3](https://github.com/lvgl/lvgl)
 - [LovyanGFX](https://github.com/lovyan03/LovyanGFX)
 - [lib-tools](https://github.com/knifter/lib-tools) (KeyTools button debounce/event)
 
@@ -35,7 +35,7 @@ Provides a screen stack, event system, and hardware bring-up layer for embedded 
 
 ```ini
 lib_deps =
-    https://github.com/lvgl/lvgl.git#release/v9.2
+    https://github.com/lvgl/lvgl.git#release/v8.3
     https://github.com/lovyan03/LovyanGFX
     https://github.com/knifter/lib-tools
     https://github.com/knifter/lib-soogh
