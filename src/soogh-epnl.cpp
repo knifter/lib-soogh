@@ -23,7 +23,11 @@ void epnl_init()
 	static esp_panel::board::Board *board;
 
 	board = new esp_panel::board::Board();
-	board->init();
+	if(!board->init())
+	{
+		ERROR("board->init() failed!");
+		while(1);
+	};
 
 	// Skip I2C re-init if touch / expander exist and use I2C bus (USE_TOUCH=0 / USE_EXPANDER=0 → nullptr).
 // TODO: Is this still needed
@@ -39,10 +43,17 @@ void epnl_init()
 		expander->skipInitHost();
     };
 
-	board->begin();
+    if(auto *lcd = board->getLCD())
+        lcd->configFrameBufferNumber(2);
+
+	if(!board->begin())
+	{
+		ERROR("board->begin() failed!");
+		while(1);
+	};
     _epnl_board = board;
     
-	waveshare_lcd4_set_backlight(80);
+	waveshare_lcd4_set_backlight(100);
 };
 
 #endif // SOOGH_USE_EPNL

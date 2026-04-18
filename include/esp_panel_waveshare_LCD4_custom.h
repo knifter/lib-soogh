@@ -23,14 +23,14 @@
 // RGB timing — from confirmed-working reference project
 // VBP=40 is intentionally larger than PORCTRL register value (13) for interface stability.
 // PCLK_ACTIVE_NEG=1: panel samples on falling edge (critical — wrong polarity = corrupt pixels).
-#define ESP_PANEL_BOARD_LCD_RGB_CLK_HZ          (10 * 1000 * 1000)
+#define ESP_PANEL_BOARD_LCD_RGB_CLK_HZ          (16 * 1000 * 1000)
 #define ESP_PANEL_BOARD_LCD_RGB_HPW             (8)
-#define ESP_PANEL_BOARD_LCD_RGB_HBP             (50)
-#define ESP_PANEL_BOARD_LCD_RGB_HFP             (10)
+#define ESP_PANEL_BOARD_LCD_RGB_HBP             (40)
+#define ESP_PANEL_BOARD_LCD_RGB_HFP             (20)
 #define ESP_PANEL_BOARD_LCD_RGB_VPW             (8)
-#define ESP_PANEL_BOARD_LCD_RGB_VBP             (40)
+#define ESP_PANEL_BOARD_LCD_RGB_VBP             (20)
 #define ESP_PANEL_BOARD_LCD_RGB_VFP             (10)
-#define ESP_PANEL_BOARD_LCD_RGB_PCLK_ACTIVE_NEG (1)
+#define ESP_PANEL_BOARD_LCD_RGB_PCLK_ACTIVE_NEG (0)
 
 // 16-bit parallel bus, RGB565 in framebuffer
 // Note: panel is configured for RGB666 (COLMOD=0x60) but the 16-bit data bus
@@ -38,12 +38,12 @@
 // controller accepts 6-bit colour internally; framebuffer data is still RGB565.
 #define ESP_PANEL_BOARD_LCD_RGB_DATA_WIDTH      (16)
 #define ESP_PANEL_BOARD_LCD_RGB_PIXEL_BITS      (ESP_PANEL_LCD_COLOR_BITS_RGB565)
-// #define ESP_PANEL_LCD_BOUNCE_BUF_SIZE             (0)   // No bounce buffer - use framebuffer directly (zero-copy mode)
 
 // Bounce buffer: pre-fetches scanlines into SRAM to reduce PSRAM contention.
 // WIDTH * 10 = 4800 pixels = 9600 bytes. Must satisfy: size * N = W * H (N even).
 // 480 * 480 / 4800 = 48 (even). Good.
 #define ESP_PANEL_BOARD_LCD_RGB_BOUNCE_BUF_SIZE (ESP_PANEL_BOARD_WIDTH * 10)
+// #define ESP_PANEL_BOARD_LCD_RGB_BOUNCE_BUF_SIZE             (0)   // No bounce buffer - use framebuffer directly (zero-copy mode)
 
 // RGB interface GPIO mapping
 #define ESP_PANEL_BOARD_LCD_RGB_IO_HSYNC        (38)
@@ -73,8 +73,8 @@
 // IO multiplex: set to 1 so the 3-wire SPI init is sent immediately inside
 // esp_lcd_new_panel_st7701_rgb() (before RGB DMA starts), then the SPI IO is
 // deleted. This is the same flow as the confirmed-working reference project.
-#define ESP_PANEL_BOARD_LCD_FLAGS_ENABLE_IO_MULTIPLEX   (1)
-#define ESP_PANEL_BOARD_LCD_FLAGS_MIRROR_BY_CMD         (1)
+#define ESP_PANEL_BOARD_LCD_FLAGS_ENABLE_IO_MULTIPLEX   (0)
+#define ESP_PANEL_BOARD_LCD_FLAGS_MIRROR_BY_CMD         (0)
 
 // Vendor init sequence for Waveshare ESP32-S3-Touch-LCD-4 (ST7701, 480x480).
 // Source: vendor_specific_init_default[] from the confirmed-working reference
@@ -142,7 +142,7 @@
 
 // Needed to skip i2c init to avoid conflicts
 #define ESP_PANEL_BOARD_LCD_BUS_SKIP_INIT_HOST    (1)     // 0/1
-#define ESP_PANEL_BOARD_EXPANDER_SKIP_INIT_HOST     (1)     // 0/1
+#define ESP_PANEL_BOARD_EXPANDER_SKIP_INIT_HOST   (1)     // 0/1
 
 ////////// TOUCH //////////
 // Set to 1 if you want the library to manage GT911.
