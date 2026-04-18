@@ -1,6 +1,6 @@
 {
   "name": "lib-soogh",
-  "version": "0.9.0+260415",
+  "version": "0.10.0+2604",
   "description": "Object-oriented GUI framework wrapping LVGL v9 and LovyanGFX for ESP32 embedded displays. Provides a screen stack, event routing, and hardware abstraction for M5Stack Core, M5Stack Core2, WT32-SC01 and Waveshare LCD4 devices.",
   "keywords": ["lvgl", "lovyangfx", "gui", "esp32", "m5stack", "display", "embedded"],
   "repository": {
