@@ -3,7 +3,7 @@
 #include "soogh-conf.h"
 #include "soogh-lgfx_waveshare_LCD4.h"
 
-#ifdef SOOGH_LGFX
+#ifdef SOOGH_USE_LGFX
 LGFX::LGFX(void)
 {
     // Panel: ST7701 -> RGB

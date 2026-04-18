@@ -68,10 +68,10 @@ bool lvgl_init()
     void *fb1 = nullptr;
     #ifdef SOOGH_DOUBLEBUF
     fb1 = (uint8_t*) heap_caps_malloc(LV_BUF_SIZE * 2, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA);
-    if(!_lv_buf2)
+    if(!fb1)
     {
         Serial.printf("Alloc(buf2) failed. Disabling Double-Buffering.");
-        _lv_buf2 = nullptr;
+        fb1 = nullptr;
     };
     #endif
 #endif // SOOGH_LGFX

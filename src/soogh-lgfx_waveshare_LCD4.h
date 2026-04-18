@@ -2,7 +2,7 @@
 #define __SOOOGH_LGFX_WAVESHARE_LCD4_H
 
 #ifdef SOOGH_DEV_WAVESHARE_LCD4
-#ifdef SOOGH_LGFX
+#ifdef SOOGH_USE_LGFX
 // Support for Waveshare ESP32-S3-Touch-LCD4 4", 480x480, CAN, RS485, Battery, RTC?
 
 #include <LovyanGFX.hpp>

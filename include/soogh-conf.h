@@ -39,8 +39,8 @@
     #define SOOGH_DISP_ROTATE           0
     #define SOOGH_TOUCH
     #define SOOGH_DOUBLEBUF
-    #define SOOGH_USE_EPNL
-    // #define SOOGH_USE_LGFX
+    // #define SOOGH_USE_EPNL
+    #define SOOGH_USE_LGFX
 #endif
 
 #ifdef SOOGH_DEV_WT32SC01
