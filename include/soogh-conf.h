@@ -37,10 +37,10 @@
     #define DISPLAY_WIDTH				480
 
     #define SOOGH_DISP_ROTATE           0
-    #define SOOGH_TOUCH
-    #define SOOGH_DOUBLEBUF
-    // #define SOOGH_USE_EPNL
-    #define SOOGH_USE_LGFX
+    // #define SOOGH_TOUCH
+    // #define SOOGH_DOUBLEBUF  // Hardware uses single buffering, lvgl cant benefit now
+    #define SOOGH_USE_EPNL
+    // #define SOOGH_USE_LGFX
 #endif
 
 #ifdef SOOGH_DEV_WT32SC01
