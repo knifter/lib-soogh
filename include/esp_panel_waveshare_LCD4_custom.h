@@ -20,22 +20,17 @@
 #define ESP_PANEL_BOARD_LCD_RGB_SPI_PARAM_BYTES         (1)
 #define ESP_PANEL_BOARD_LCD_RGB_SPI_USE_DC_BIT          (1)
 
-// RGB timing — verified working values for this panel
+// RGB timing — from confirmed-working reference project
+// VBP=40 is intentionally larger than PORCTRL register value (13) for interface stability.
+// PCLK_ACTIVE_NEG=1: panel samples on falling edge (critical — wrong polarity = corrupt pixels).
 #define ESP_PANEL_BOARD_LCD_RGB_CLK_HZ          (10 * 1000 * 1000)
-#define ESP_PANEL_BOARD_LCD_RGB_HPW             (10)
-#define ESP_PANEL_BOARD_LCD_RGB_HBP             (10)
-#define ESP_PANEL_BOARD_LCD_RGB_HFP             (20)
-#define ESP_PANEL_BOARD_LCD_RGB_VPW             (10)
-#define ESP_PANEL_BOARD_LCD_RGB_VBP             (10)
+#define ESP_PANEL_BOARD_LCD_RGB_HPW             (8)
+#define ESP_PANEL_BOARD_LCD_RGB_HBP             (50)
+#define ESP_PANEL_BOARD_LCD_RGB_HFP             (10)
+#define ESP_PANEL_BOARD_LCD_RGB_VPW             (8)
+#define ESP_PANEL_BOARD_LCD_RGB_VBP             (40)
 #define ESP_PANEL_BOARD_LCD_RGB_VFP             (10)
-#define ESP_PANEL_BOARD_LCD_RGB_PCLK_ACTIVE_NEG (0)
-// #define ESP_PANEL_BOARD_LCD_RGB_HPW             (8)
-// #define ESP_PANEL_BOARD_LCD_RGB_HBP             (50)
-// #define ESP_PANEL_BOARD_LCD_RGB_HFP             (10)
-// #define ESP_PANEL_BOARD_LCD_RGB_VPW             (8)
-// #define ESP_PANEL_BOARD_LCD_RGB_VBP             (20)
-// #define ESP_PANEL_BOARD_LCD_RGB_VFP             (10)
-// #define ESP_PANEL_BOARD_LCD_RGB_PCLK_ACTIVE_NEG (1)    // pclk_idle_high=1 in lgfx
+#define ESP_PANEL_BOARD_LCD_RGB_PCLK_ACTIVE_NEG (1)
 
 // 16-bit parallel bus, RGB565 in framebuffer
 // Note: panel is configured for RGB666 (COLMOD=0x60) but the 16-bit data bus
@@ -43,6 +38,7 @@
 // controller accepts 6-bit colour internally; framebuffer data is still RGB565.
 #define ESP_PANEL_BOARD_LCD_RGB_DATA_WIDTH      (16)
 #define ESP_PANEL_BOARD_LCD_RGB_PIXEL_BITS      (ESP_PANEL_LCD_COLOR_BITS_RGB565)
+// #define ESP_PANEL_LCD_BOUNCE_BUF_SIZE             (0)   // No bounce buffer - use framebuffer directly (zero-copy mode)
 
 // Bounce buffer: pre-fetches scanlines into SRAM to reduce PSRAM contention.
 // WIDTH * 10 = 4800 pixels = 9600 bytes. Must satisfy: size * N = W * H (N even).
@@ -74,15 +70,60 @@
 #define ESP_PANEL_BOARD_LCD_RGB_IO_DATA14       (18)  // R3
 #define ESP_PANEL_BOARD_LCD_RGB_IO_DATA15       (17)  // R4
 
-// IO multiplex: 3-wire SPI pins do NOT share RGB pins on this board,
-// so set to 0. Pins are released after init() regardless.
-#define ESP_PANEL_BOARD_LCD_FLAGS_ENABLE_IO_MULTIPLEX   (0)
+// IO multiplex: set to 1 so the 3-wire SPI init is sent immediately inside
+// esp_lcd_new_panel_st7701_rgb() (before RGB DMA starts), then the SPI IO is
+// deleted. This is the same flow as the confirmed-working reference project.
+#define ESP_PANEL_BOARD_LCD_FLAGS_ENABLE_IO_MULTIPLEX   (1)
 #define ESP_PANEL_BOARD_LCD_FLAGS_MIRROR_BY_CMD         (1)
 
-// Vendor init: leave undefined to use the library's built-in default sequence.
-// The default sequence in esp_lcd_st7701_rgb.c is correct for this panel.
-// Uncomment and fill in below ONLY if you need to override it:
-// #define ESP_PANEL_BOARD_LCD_VENDOR_INIT_CMD() { ... }
+// Vendor init sequence for Waveshare ESP32-S3-Touch-LCD-4 (ST7701, 480x480).
+// Source: vendor_specific_init_default[] from the confirmed-working reference
+// project (Marine-Displays/ESP32-S3_Square_Display, esp_lcd_st7701_rgb.c).
+// The v1.0.5 library default is a generic reference sequence for a different
+// panel variant — do not remove this override.
+//
+// Format: {cmd, {data bytes}, data_len, delay_ms}
+// clang-format off
+#define ESP_PANEL_BOARD_LCD_VENDOR_INIT_CMD()                                                                                           \
+    {                                                                                                                                   \
+        {0xFF, (uint8_t[]){0x77, 0x01, 0x00, 0x00, 0x10}, 5,   0}, /* CMD2 Bank0: unlock CMD2, select Bank 0 */                       \
+        {0xC0, (uint8_t[]){0x3B, 0x00},                   2,   0}, /* LNESET: 480 display lines (0x3B+1)*8, no line-delay */          \
+        {0xC1, (uint8_t[]){0x0D, 0x02},                   2,   0}, /* PORCTRL: VBP=13 lines, VFP=2 lines (vertical porch) */          \
+        {0xC2, (uint8_t[]){0x31, 0x05},                   2,   0}, /* INVSET: inversion timing and frame-rate control */              \
+        {0xCD, (uint8_t[]){0x08},                          1,   0}, /* COLCTRL: 18-bit color (RGB666) on the RGB data bus */           \
+        {0xB0, (uint8_t[]){0x00, 0x11, 0x18, 0x0E, 0x11, 0x06, 0x07, 0x08, 0x07, 0x22, 0x04, 0x12, 0x0F, 0xAA, 0x31, 0x18}, 16, 0}, /* PVGAMCTRL: positive gamma (16 pts) */  \
+        {0xB1, (uint8_t[]){0x00, 0x11, 0x19, 0x0E, 0x12, 0x07, 0x08, 0x08, 0x08, 0x22, 0x04, 0x11, 0x11, 0xA9, 0x32, 0x18}, 16, 0}, /* NVGAMCTRL: negative gamma (16 pts) */  \
+        {0xFF, (uint8_t[]){0x77, 0x01, 0x00, 0x00, 0x11}, 5,   0}, /* CMD2 Bank1: select Bank 1 */                                    \
+        {0xB0, (uint8_t[]){0x60},                          1,   0}, /* VRHS: Vop panel supply voltage = 4.7375 V */                    \
+        {0xB1, (uint8_t[]){0x32},                          1,   0}, /* VCOMS: VCOM voltage = 0.725 V (affects contrast/flicker) */     \
+        {0xB2, (uint8_t[]){0x07},                          1,   0}, /* VGHSS: VGH gate-high voltage = 15 V */                          \
+        {0xB3, (uint8_t[]){0x80},                          1,   0}, /* TESTCMD: internal test register, keep at 0x80 (default) */      \
+        {0xB5, (uint8_t[]){0x49},                          1,   0}, /* VGLS: VGL gate-low voltage = -10.17 V */                        \
+        {0xB7, (uint8_t[]){0x85},                          1,   0}, /* PWCTRL1: gate driver power control */                           \
+        {0xB8, (uint8_t[]){0x21},                          1,   0}, /* PWCTRL2: AVDD = 6.6 V, AVCL = -4.6 V */                        \
+        {0xC1, (uint8_t[]){0x78},                          1,   0}, /* SPD1: source pre-charge period 1 */                             \
+        {0xC2, (uint8_t[]){0x78},                          1,   0}, /* SPD2: source pre-charge period 2 */                             \
+        {0xE0, (uint8_t[]){0x00, 0x1B, 0x02},              3,   0}, /* MIPISET1: MIPI/interface timing */                              \
+        {0xE1, (uint8_t[]){0x08, 0xA0, 0x00, 0x00, 0x07, 0xA0, 0x00, 0x00, 0x00, 0x44, 0x44}, 11, 0}, /* SETGIP1: odd-column ST timing, period, polarity */  \
+        {0xE2, (uint8_t[]){0x11, 0x11, 0x44, 0x44, 0xED, 0xA0, 0x00, 0x00, 0xEC, 0xA0, 0x00, 0x00}, 12, 0}, /* SETGIP2: even-column ST timing */              \
+        {0xE3, (uint8_t[]){0x00, 0x00, 0x11, 0x11},        4,   0}, /* SETGIP3: clock group control (odd) */                           \
+        {0xE4, (uint8_t[]){0x44, 0x44},                    2,   0}, /* SETGIP4: clock voltage level (odd) */                           \
+        {0xE5, (uint8_t[]){0x0A, 0xE9, 0xD8, 0xA0, 0x0C, 0xEB, 0xD8, 0xA0, 0x0E, 0xED, 0xD8, 0xA0, 0x10, 0xEF, 0xD8, 0xA0}, 16, 0}, /* SETGIP5: odd STx signal timing (4 signals x 4 bytes) */   \
+        {0xE6, (uint8_t[]){0x00, 0x00, 0x11, 0x11},        4,   0}, /* SETGIP6: clock group control (even, mirrors E3) */              \
+        {0xE7, (uint8_t[]){0x44, 0x44},                    2,   0}, /* SETGIP7: clock voltage level (even, mirrors E4) */              \
+        {0xE8, (uint8_t[]){0x09, 0xE8, 0xD8, 0xA0, 0x0B, 0xEA, 0xD8, 0xA0, 0x0D, 0xEC, 0xD8, 0xA0, 0x0F, 0xEE, 0xD8, 0xA0}, 16, 0}, /* SETGIP8: even STx signal timing (4 signals x 4 bytes) */  \
+        {0xEB, (uint8_t[]){0x02, 0x00, 0xE4, 0xE4, 0x88, 0x00, 0x40}, 7, 0}, /* SETGIP9: equalizer timing and function enable */       \
+        {0xEC, (uint8_t[]){0x3C, 0x00},                    2,   0}, /* SETGIP10: source OP control in normal/idle mode */              \
+        {0xED, (uint8_t[]){0xAB, 0x89, 0x76, 0x54, 0x02, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0x45, 0x67, 0x98, 0xBA}, 16, 0}, /* SETGIP11: pin map: controller to panel gate pins */         \
+        {0xFF, (uint8_t[]){0x77, 0x01, 0x00, 0x00, 0x13}, 5,   0}, /* CMD2 Bank3: select Bank 3 */                                    \
+        {0xE5, (uint8_t[]){0xE4},                          1,   0}, /* NVGAMCTRL (Bank3): VAP/VAN output voltage fine-tune */          \
+        {0xFF, (uint8_t[]){0x77, 0x01, 0x00, 0x00, 0x00}, 5,   0}, /* CMD2 disable: return to standard MIPI DCS command set */        \
+        {0x21, (uint8_t[]){0x00},                          0,   0}, /* INVON: display inversion ON (IPS panel requires this) */        \
+        {0x3A, (uint8_t[]){0x60},                          1,   0}, /* COLMOD: pixel format 0x60 = 18-bit/pixel RGB666 */              \
+        {0x11, (uint8_t[]){0x00},                          0, 120}, /* SLPOUT: exit sleep mode; 120 ms delay required */               \
+        {0x29, (uint8_t[]){0x00},                          0,   0}, /* DISPON: enable display output */                                \
+    }
+// clang-format on
 
 // Pixel format and orientation
 #define ESP_PANEL_BOARD_LCD_COLOR_BITS          (ESP_PANEL_LCD_COLOR_BITS_RGB666)
