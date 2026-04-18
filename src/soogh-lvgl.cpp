@@ -243,10 +243,7 @@ static void lv_disp_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t 
     // flush_ready is called from lv_vsync_cb on the next VSync interrupt
 };
 
-// ── Optional: VSync-triggered flush ready (tear-free) ─────────────────────────
-// Uncomment lcd->attachRefreshFinishCallback() in lvgl_port_init() to activate.
-// Also remove the lv_display_flush_ready() call from flush_cb above when using this.
-static bool lv_vsync_cb(void *user_data)
+static IRAM_ATTR bool lv_vsync_cb(void *user_data)
 {
     lv_display_flush_ready((lv_display_t *)user_data);
     return false;  // return true to yield to higher-priority task

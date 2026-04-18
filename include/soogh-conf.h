@@ -11,6 +11,8 @@
 #ifdef SOOGH_DEV_M5CORE
 	#define DISPLAY_HEIGHT				240
 	#define DISPLAY_WIDTH				320
+    #define DISPLAY_INCH_HOR            (2.0f)
+
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_ENCODER_KEYS          1
     #define SOOGH_USE_LGFX
@@ -23,6 +25,7 @@
 #ifdef SOOGH_DEV_M5CORE2
 	#define DISPLAY_HEIGHT				240
 	#define DISPLAY_WIDTH				320
+    #define DISPLAY_INCH_HOR            (2.0f)
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_ENCODER_KEYS          1
     #define SOOGH_TOUCH                 1
@@ -35,6 +38,7 @@
 #ifdef SOOGH_DEV_WAVESHARE_LCD4
     #define DISPLAY_HEIGHT				480
     #define DISPLAY_WIDTH				480
+    #define DISPLAY_INCH_HOR            (4.0f)
 
     #define SOOGH_DISP_ROTATE           0
     // #define SOOGH_TOUCH
@@ -45,6 +49,7 @@
 #ifdef SOOGH_DEV_WT32SC01
     #define DISPLAY_HEIGHT				320
     #define DISPLAY_WIDTH				480
+    #define DISPLAY_INCH_HOR            (1.0f) // unknown
     #define SOOGH_DISP_ROTATE           1
     #define SOOGH_TOUCH
     #define SOOGH_DOUBLEBUF

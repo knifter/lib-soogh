@@ -96,7 +96,7 @@ void waveshare_lcd4_init()
     if (g_v4) {
         // CH32V003: direction polarity inverted (1=output, 0=input)
         exp_write(REG_DIR, V4_DIR_SAFE);
-        exp_write(REG_OUTPUT_V4, 0xFF & ~V4_BEE_EN_BIT);  // BEE_EN active-high: drive LOW to silence
+        exp_write(REG_OUTPUT_V4, (uint8_t)(0xFF & ~V4_BEE_EN_BIT));  // BEE_EN active-high: drive LOW to silence
         delay(10);
     } else {
         // TCA9554: direction polarity normal (0=output, 1=input)

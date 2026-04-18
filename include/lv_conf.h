@@ -1,6 +1,8 @@
 #ifndef LV_CONF_H
 #define LV_CONF_H
 
+#include <soogh-conf.h>
+
 /**
  * @file lv_conf.h
  * Configuration file for v9.2.3-dev
@@ -67,7 +69,7 @@
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
  *(Not so important, you can adjust it to modify default sizes and spaces)*/
-//#define LV_DPI_DEF 152     /*[px/inch]*/
+#define LV_DPI_DEF          ((int)(DISPLAY_WIDTH/DISPLAY_INCH_HOR))     /*[px/inch]*/
 
 /*=================
  * OPERATING SYSTEM
