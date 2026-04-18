@@ -47,7 +47,7 @@ class SooghGUI
         bool                _ignore_events = false;
 
 	public:
-		virtual time_t loop();
+		virtual bool loop();
 
 		SooghGUI(const SooghGUI&) = delete;
 	    SooghGUI& operator=(SooghGUI const&) = delete;

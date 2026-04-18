@@ -14,11 +14,11 @@ bool lvgl_lock(uint32_t timeout_ms);     // Acquire LVGL mutex before calling an
 void lvgl_unlock(void);                  // Release after done
 void lvgl_port_task(void *arg);          // FreeRTOS task entry point
 
-#define LV_BUF_SIZE         (DISPLAY_HEIGHT*DISPLAY_WIDTH / 10)         // Atleast 1/10th of the screen, but increase for higher performance
-static SemaphoreHandle_t    _lv_disp_mutex = NULL;
+static SemaphoreHandle_t    _lv_task_mutex = NULL;
 
 static void                 lv_disp_flush_cb(lv_display_t*, const lv_area_t*, uint8_t*);
 #ifdef SOOGH_USE_LGFX
+#define LV_BUF_SIZE         (DISPLAY_HEIGHT*DISPLAY_WIDTH / 5)         // Atleast 1/10th of the screen, but increase for higher performance
 static inline void          lv_disp_flush_wait_cb(lv_display_t*);
 #endif
 #ifdef SOOGH_USE_EPNL
@@ -51,6 +51,7 @@ static void serial_log_cb(const char* line) { Serial.print(line); }
 bool lvgl_init()
 {
     lv_init();
+    lv_tick_set_cb([]() -> uint32_t { return (uint32_t) millis(); });
 
 #if LV_USE_LOG
     lv_log_register_print_cb(serial_log_cb);
@@ -126,8 +127,8 @@ bool lvgl_init()
 #endif
 
     // Display Mutex
-    _lv_disp_mutex = xSemaphoreCreateMutex();
-    configASSERT(_lv_disp_mutex);
+    _lv_task_mutex = xSemaphoreCreateMutex();
+    configASSERT(_lv_task_mutex);
 
     return true;
 };
@@ -158,12 +159,12 @@ void lvgl_port_task(void *arg)
 
 bool lvgl_lock(uint32_t timeout_ms)
 {
-    return xSemaphoreTake(_lv_disp_mutex, pdMS_TO_TICKS(timeout_ms)) == pdTRUE;
+    return xSemaphoreTake(_lv_task_mutex, pdMS_TO_TICKS(timeout_ms)) == pdTRUE;
 };
 
 void lvgl_unlock()
 {
-    xSemaphoreGive(_lv_disp_mutex);
+    xSemaphoreGive(_lv_task_mutex);
 };
 
 #ifdef SOOGH_USE_LGFX

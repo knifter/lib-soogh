@@ -5,6 +5,8 @@
 
 bool lvgl_init();
 bool lvgl_start_task();
+bool lvgl_lock(uint32_t timeout_ms);
+void lvgl_unlock();
 
 #ifdef SOOGH_ENCODER_KEYS
     extern uint32_t     lvgl_enc_last_key;

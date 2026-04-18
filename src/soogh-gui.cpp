@@ -48,13 +48,16 @@ bool SooghGUI::begin()
 	// pushScreen(scr);
   	// pushScreen(ScreenType::BOOT);
 
-	// lvgl_start_task();
+	lvgl_start_task();
 
 	return true;
 };
 
-time_t SooghGUI::loop()
+bool SooghGUI::loop()
 {    
+	if(!lvgl_lock(10))
+        return false;
+
 	// ScreenStack may not be empty
 	if(_scrstack.size() == 0)
 	{
@@ -83,15 +86,8 @@ time_t SooghGUI::loop()
 
     scr->loop();
 
-	// LVGL ticker
-    time_t now = millis();
-	{
-    	lv_tick_inc(now - _prv_tick);
-    	_prv_tick = now;
-	};
-
-	vTaskDelay(pdMS_TO_TICKS(10));
-    return lv_timer_handler();
+	lvgl_unlock();
+	return true;
 };
 
 void SooghGUI::flushEvents()
@@ -116,6 +112,9 @@ bool SooghGUI::handle(soogh_event_t e)
         return true;
     };
     
+	if(!lvgl_lock(10))
+        return false;
+
     // Handle global events
     switch(e)
     {
@@ -131,6 +130,7 @@ bool SooghGUI::handle(soogh_event_t e)
                 lv_msgbox_close(_msgbox);
 				_msgbox = nullptr;
                 SOOGH_DBG("_msgbox closed.");
+				lvgl_unlock();
                 return true;
             };
         default: break;
@@ -141,9 +141,9 @@ bool SooghGUI::handle(soogh_event_t e)
     if(scr->handle(e))
     {
         SOOGH_DBG("Event %s handled by screen(%s)", soogh_event_name(e), scr->name());
-        return true;
-    };
-    SOOGH_DBG("Event %s NOT handled by screen(%s)", soogh_event_name(e), scr->name());
+    }else{
+    	SOOGH_DBG("Event %s NOT handled by screen(%s)", soogh_event_name(e), scr->name());
+	};
 
     // Give the bare keys to LVGL
     // switch(e)
@@ -155,7 +155,8 @@ bool SooghGUI::handle(soogh_event_t e)
     //     default:  		lvgl_enc_pressed = false;
     // };
 
-    return true;
+	lvgl_unlock();
+	return true;
 };
 
 ScreenPtr SooghGUI::pushScreen(ScreenPtr scr, void* data)
