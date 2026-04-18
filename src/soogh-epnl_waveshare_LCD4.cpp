@@ -21,17 +21,17 @@
 #define REG_PWM_V4      0x05   // CH32V003 backlight PWM (0=max, 247=off)
 
 // ── Pin bit masks ───────────────────────────────────────────────────────────
-// V3: LCD_RST=bit2, BL=bit1 | V4: LCD_RST=bit3, SYS_EN=bit5
+// V3: LCD_RST=bit2, BL=bit1 | V4: LCD_RST=bit3, SYS_EN=bit5, BEE_EN=bit6
 #define V3_LCD_RST_BIT  (1 << 2)
 #define V3_BL_BIT       (1 << 1)
 #define V4_LCD_RST_BIT  (1 << 3)
 #define V4_SYS_EN_BIT   (1 << 5)
+#define V4_BEE_EN_BIT   (1 << 6)
 
 // ── V4 direction register ───────────────────────────────────────────────────
-// 0x3A = 0b0011_1010 → bits 1,3,4,5 are outputs; bits 0,2,6,7 are inputs.
+// 0x7A = 0b0111_1010 → bits 1,3,4,5,6 are outputs; bits 0,2,7 are inputs.
 // (In CH32V003: 1=output, 0=input — inverted from TCA9554.)
-// BEE_EN (bit 6) kept as input to prevent accidental buzzer activation.
-#define V4_DIR_SAFE  0x3A
+#define V4_DIR_SAFE  0x7A
 
 // ── Runtime state ───────────────────────────────────────────────────────────
 static uint8_t g_addr = ADDR_V3;
@@ -96,8 +96,7 @@ void waveshare_lcd4_init()
     if (g_v4) {
         // CH32V003: direction polarity inverted (1=output, 0=input)
         exp_write(REG_DIR, V4_DIR_SAFE);
-        // Enable SYS_EN (LCD power rail) and set everything else high
-        exp_write(REG_OUTPUT_V4, 0xFF);
+        exp_write(REG_OUTPUT_V4, 0xFF & ~V4_BEE_EN_BIT);  // BEE_EN active-high: drive LOW to silence
         delay(10);
     } else {
         // TCA9554: direction polarity normal (0=output, 1=input)
