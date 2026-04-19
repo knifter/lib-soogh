@@ -431,7 +431,7 @@
 #define LV_ATTRIBUTE_TIMER_HANDLER
 
 /*Define a custom attribute to `lv_display_flush_ready` function*/
-#define LV_ATTRIBUTE_FLUSH_READY
+#define LV_ATTRIBUTE_FLUSH_READY    IRAM_ATTR // TvR: Place critical code into fast IRAM
 
 /*Required alignment size for buffers*/
 #define LV_ATTRIBUTE_MEM_ALIGN_SIZE 1
