@@ -116,3 +116,6 @@ void loop()
     // safe to use SPI here
 }
 ```
+
+## Author
+This software is written by [Tijs van Roon](https://github.com/knifter). It is free to use under the [MIT License](LICENSE).
