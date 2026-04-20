@@ -16,9 +16,10 @@
   "license": "MIT",
   "homepage": "https://github.com/knifter/lib-soogh",
   "dependencies": {
-    "lvgl/lvgl": "^9.2.0",
-    "lovyan03/LovyanGFX": "^1.2.0",
-    "lib-tools": "https://github.com/knifter/lib-tools"
+    "lvgl/lvgl": "https://github.com/lvgl/lvgl.git#release/v9.2",
+    "lovyan03/LovyanGFX": "^1.2",
+    "lib-tools": "https://github.com/knifter/lib-tools",
+    "esp-arduino-libs/ESP32_Display_Panel": "https://github.com/esp-arduino-libs/ESP32_Display_Panel#v1.0.4"
   },
   "frameworks": "arduino",
   "platforms": "espressif32",
