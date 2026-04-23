@@ -18,7 +18,9 @@ esp_panel::board::Board *_epnl_board = nullptr;
 // ---------------------------------------------------------------------------
 void epnl_init()
 {
+#ifdef SOOGH_DEV_WAVESHARE_LCD4
     waveshare_lcd4_init();
+#endif
 
 	static esp_panel::board::Board *board;
 
@@ -53,7 +55,10 @@ void epnl_init()
 	};
     _epnl_board = board;
     
+#ifdef SOOGH_DEV_WAVESHARE_LCD4
 	waveshare_lcd4_set_backlight(100);
+#endif
+
 };
 
 #endif // SOOGH_USE_EPNL
