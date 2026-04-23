@@ -1,5 +1,7 @@
 #include "soogh-epnl_waveshare_LCD4.h"
 
+#ifdef SOOGH_DEV_WAVESHARE_LCD4
+
 #include <Wire.h>
 #include <Preferences.h>
 #include <Arduino.h>
@@ -136,3 +138,5 @@ bool waveshare_lcd4_is_v4()
 { 
     return g_v4; 
 };
+
+#endif // SOOGH_DEV_WAVESHARE_LCD4
