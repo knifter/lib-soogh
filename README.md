@@ -6,9 +6,9 @@ Provides a screen stack, event system, and hardware bring-up layer for embedded 
 
 ## Version Changelog
 
- - v0.10 Moved LVGL handling to separate task and uses ESP Display Panel backend for LCD4
- - v0.9 is the LVGL9 ported version. 
- - v0.8 feature frozen LVGL8 version.
+ - v0.10 Moved LVGL handling to separate task and uses ESP Display Panel backend for LCD4, Needs Arduino3+IDF5: Pioduino
+ - v0.9 is the LVGL9 ported version with Lovyan only, works on Ardiuno2+IDF4
+ - v0.8 feature frozen LVGL8 version
 
 ## Features
 
