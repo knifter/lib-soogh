@@ -1,12 +1,14 @@
 # lib-soogh v0.10
 
-v0.8 frozen LVGL8 version.
-v0.9 is the new LVGL9 version. For the previous LVGL8 use the LVGL8/v0.8 branch
-v0.10 Moved LVGL handling to separate task.
-
 Object-oriented GUI framework for LVGL v9 + LovyanGFX on ESP32.
 
 Provides a screen stack, event system, and hardware bring-up layer for embedded displays. Targets M5Stack Core, M5Stack Core2, WT32-SC01, and Waveshare LCD4.
+
+## Version Changelog
+
+ - v0.10 Moved LVGL handling to separate task and uses ESP Display Panel backend for LCD4
+ - v0.9 is the LVGL9 ported version. 
+ - v0.8 feature frozen LVGL8 version.
 
 ## Features
 
@@ -118,4 +120,4 @@ void loop()
 ```
 
 ## Author
-This software is written by [Tijs van Roon](https://github.com/knifter). It is free to use under the [MIT License](LICENSE).
+This software is written by [Tijs van Roon](https://github.com/knifter). It is free to use under the [MIT License](https://opensource.org/licenses/MIT).
