@@ -10,6 +10,13 @@ Provides a screen stack, event system, and hardware bring-up layer for embedded 
  - v0.9 is the LVGL9 ported version with Lovyan only, works on Ardiuno2+IDF4
  - v0.8 feature frozen LVGL8 version
 
+| Version   | framwork             | Arduino | ESP IDF | Lovyan | ESP Display Panel | LVGL | lv_timer_handler |
+|-----------|----------------------|---------|---------|--------|-------------------|------|------------------|
+| 0.10      | Pioduino 53.03.13    | 3.1.3   | 5.3.0   | Maybe  | 1.0.4             | 9.2  | thread           |
+| 0.9       | Espressif 6.9.0      | 2.x     | 4.x     | 1.2.0  | No                | 9.2  | gui.loop()       |
+| 0.8       | Espressif 6.9.0      | 2.x     | 4.x     | 1.2.0  | No                | 8.3  | gui.loop()       |
+
+
 ## Features
 
 - **Screen stack** — push/pop `Screen` objects; each screen owns its LVGL widgets and lifecycle (`init`, `load`, `loop`, `close`)
