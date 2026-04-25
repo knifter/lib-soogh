@@ -92,7 +92,6 @@ static void detect_version()
 // ── Public API ───────────────────────────────────────────────────────────────
 void waveshare_lcd4_init()
 {
-    Wire.begin(I2C_SDA, I2C_SCL);
     detect_version();
 
     if (g_v4) {
