@@ -239,7 +239,10 @@ static void lv_disp_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t 
 {
     esp_panel::drivers::LCD *lcd = static_cast<esp_panel::drivers::LCD *>(lv_display_get_user_data(disp));
     // DBG("draw %d %d %d %d %p", area->x1, area->y1, area->x2 + 1, area->y2 + 1, px_map);
-    lcd->drawBitmap(area->x1, area->y1, area->x2 + 1, area->y2 + 1, px_map);
+    uint32_t w = ( area->x2 - area->x1 + 1 );
+    uint32_t h = ( area->y2 - area->y1 + 1 );
+    lcd->drawBitmap(area->x1, area->y1, w, h, px_map);
+
     // flush_ready is called from lv_vsync_cb on the next VSync interrupt
 };
 
@@ -259,11 +262,9 @@ static void lv_touchpad_cb(lv_indev_t* indev, lv_indev_data_t* data)
         data->state = LV_INDEV_STATE_PRESSED;
         data->point.x = point[0].x;
         data->point.y = point[0].y;
-    }
-    else
-    {
-        data->state = LV_INDEV_STATE_RELEASED;
+        return;
     };
+    data->state = LV_INDEV_STATE_RELEASED;
 };
 #endif // SOOGH_TOUCH
 
