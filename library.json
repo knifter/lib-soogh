@@ -16,10 +16,10 @@
   "homepage": "https://github.com/knifter/lib-soogh",
   "dependencies": {
     "lvgl/lvgl": "~9.2",
-    "lib-tools": "https://github.com/knifter/lib-tools",
+    "lib-tools": "https://github.com/knifter/lib-tools#idf5",
     "esp-arduino-libs/ESP32_Display_Panel": "https://github.com/esp-arduino-libs/ESP32_Display_Panel#v1.0.4",
-    "esp-arduino-libs/ESP32_IO_Expander": "https://github.com/esp-arduino-libs/ESP32_IO_Expander",
-    "esp-arduino-libs/esp-lib-tools": "https://github.com/esp-arduino-libs/esp-lib-utils"	
+    "esp-arduino-libs/ESP32_IO_Expander": "https://github.com/esp-arduino-libs/ESP32_IO_Expander#v1.1.1",
+    "esp-arduino-libs/esp-lib-tools": "https://github.com/esp-arduino-libs/esp-lib-utils#v0.3.0"	
   },
   "frameworks": "arduino",
   "platforms": "espressif32",
