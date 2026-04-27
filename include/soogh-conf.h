@@ -41,7 +41,7 @@
     #define DISPLAY_INCH_HOR            (4.0f)
 
     #define SOOGH_DISP_ROTATE           0
-    // #define SOOGH_TOUCH
+    #define SOOGH_TOUCH
     #define SOOGH_USE_EPNL
     // #define SOOGH_USE_LGFX
 #endif

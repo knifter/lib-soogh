@@ -147,31 +147,31 @@
 ////////// TOUCH //////////
 // Set to 1 if you want the library to manage GT911.
 // Set to 0 if you implement touch yourself (simpler for V3/V4 address detection).
-#define ESP_PANEL_BOARD_USE_TOUCH               (0)
+#define ESP_PANEL_BOARD_USE_TOUCH               (1)
 #if ESP_PANEL_BOARD_USE_TOUCH
 
     #define ESP_PANEL_BOARD_TOUCH_CONTROLLER        GT911
     #define ESP_PANEL_BOARD_TOUCH_BUS_TYPE          (ESP_PANEL_BUS_TYPE_I2C)
 
     #if ESP_PANEL_BOARD_TOUCH_BUS_TYPE == ESP_PANEL_BUS_TYPE_I2C
-        #define ESP_PANEL_BOARD_TOUCH_BUS_SKIP_INIT_HOST    (0)
-        #define ESP_PANEL_BOARD_TOUCH_I2C_HOST_ID           (1)    // I2C_NUM_1
+        #define ESP_PANEL_BOARD_TOUCH_BUS_SKIP_INIT_HOST    (1)    // Wire already init'd in main.cpp
+        #define ESP_PANEL_BOARD_TOUCH_I2C_HOST_ID           (0)    // I2C_NUM_0 (Wire) — same bus as expander
         #define ESP_PANEL_BOARD_TOUCH_I2C_CLK_HZ            (400 * 1000)
         #define ESP_PANEL_BOARD_TOUCH_I2C_SCL_PULLUP        (1)
         #define ESP_PANEL_BOARD_TOUCH_I2C_SDA_PULLUP        (1)
-        #define ESP_PANEL_BOARD_TOUCH_I2C_IO_SCL            (2)    // LCD_SCL (shared with SPI)
-        #define ESP_PANEL_BOARD_TOUCH_I2C_IO_SDA            (1)    // LCD_SDA (shared with SPI)
-        #define ESP_PANEL_BOARD_TOUCH_I2C_ADDRESS           (0x14)
+        #define ESP_PANEL_BOARD_TOUCH_I2C_IO_SCL            (7)
+        #define ESP_PANEL_BOARD_TOUCH_I2C_IO_SDA            (15)
+        #define ESP_PANEL_BOARD_TOUCH_I2C_ADDRESS           (0)    // 0=auto; GT911 has two addrs (0x5D default, 0x14 if INT low at RST)
     #endif
 
     #define ESP_PANEL_BOARD_TOUCH_SWAP_XY           (0)
     #define ESP_PANEL_BOARD_TOUCH_MIRROR_X          (0)
     #define ESP_PANEL_BOARD_TOUCH_MIRROR_Y          (0)
 
-    #define ESP_PANEL_BOARD_TOUCH_RST_IO            (-1)
+    #define ESP_PANEL_BOARD_TOUCH_RST_IO            (-1)   // RST via IO expander, handled in waveshare_lcd4_init()
     #define ESP_PANEL_BOARD_TOUCH_RST_LEVEL         (0)
-    #define ESP_PANEL_BOARD_TOUCH_INT_IO            (-1)
-    #define ESP_PANEL_BOARD_TOUCH_INT_LEVEL         (0)
+    #define ESP_PANEL_BOARD_TOUCH_INT_IO            (-1)   // TP_INT is on EXIO2 of IO expander, not a direct MCU GPIO
+    #define ESP_PANEL_BOARD_TOUCH_INT_LEVEL         (0)   // Polling mode used — no interrupt cascade needed
 
 #endif // ESP_PANEL_BOARD_USE_TOUCH
 
