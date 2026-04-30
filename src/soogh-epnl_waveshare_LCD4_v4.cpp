@@ -22,13 +22,13 @@
 #define V4_RTC_INT_BIT  (1 << 7)    // EXIO7
 
 #if !defined(GT911_ADDR_HIGH)
-    #define GT911_ADDR_HIGH     0
+    #define GT911_ADDR_HIGH     1
 #endif
 
 #if GT911_ADDR_HIGH == 1
-    #define GT911_ADDR_BIT  (V4_TP_INT_BIT)  // TP_INT HIGH → GT911@0x5D
+    #define GT911_ADDR_BIT  (V4_TP_INT_BIT)  // TP_INT HIGH → GT911@0x5D (default)
 #else
-    #define GT911_ADDR_BIT  (0)                  // TP_INT LOW  → GT911@0x14
+    #define GT911_ADDR_BIT  (0)              // TP_INT LOW  → GT911@0x14
 #endif
 
 static void exp_write(uint8_t reg, uint8_t val)
@@ -60,17 +60,23 @@ void waveshare_lcd4_init()
     // 4:   1        0       1       0       1       0       0          0x2A  // Don't drive TP_INT and
     // 5:   OUT      IN      OUT     OUT     OUT     OUT     IN         0x7A  // restore TP_INT as INPUT
 
+    // Config TP_INT as output as well
     exp_write(REG_DIR,      V4_TP_RST_BIT | V4_TP_INT_BIT | V4_LCD_RST_BIT | V4_SDCD_BIT | V4_SYS_EN_BIT | V4_BEE_EN_BIT);
+    // init, TP_INT = HIGH = GT911@0x5D
     exp_write(REG_OUTPUT,   V4_TP_RST_BIT | GT911_ADDR_BIT | V4_LCD_RST_BIT | 0           | V4_SYS_EN_BIT | 0            );
     delay(10);
 
+    // rst LCD+GT11
     exp_write(REG_OUTPUT,   0             | GT911_ADDR_BIT | 0              | 0           | V4_SYS_EN_BIT | 0            );
     delay(5);
 
+    // rst off: GT911 samples TP_INT for address
     exp_write(REG_OUTPUT,   V4_TP_RST_BIT | GT911_ADDR_BIT | V4_LCD_RST_BIT | 0           | V4_SYS_EN_BIT | 0            );
     delay(200); // GT911: ≥200ms before first I2C
 
+    // Don't drive TP_INT and
     exp_write(REG_OUTPUT,   V4_TP_RST_BIT | 0              | V4_LCD_RST_BIT | 0           | V4_SYS_EN_BIT | 0            );
+    // restore TP_INT as INPUT
     exp_write(REG_DIR,      V4_TP_RST_BIT | 0              | V4_LCD_RST_BIT | V4_SDCD_BIT | V4_SYS_EN_BIT | V4_BEE_EN_BIT);
 
     // Serial.println("[BOARD] waveshare_lcd4 v4 init done");
@@ -85,6 +91,7 @@ void waveshare_lcd4_set_backlight(uint8_t pct)
 
 void waveshare_lcd4_beep(bool on)
 {
+    // NOTE: Beeper on/off requires a small delay (10ms? less?) after the call. Dunno why. uC turned IO-Expander shitty program mode magic I guess.
     uint8_t cur = exp_read(REG_OUTPUT);
     if(on)
         exp_write(REG_OUTPUT, cur |  V4_BEE_EN_BIT);
