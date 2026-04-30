@@ -73,17 +73,7 @@ void waveshare_lcd4_init()
     exp_write(REG_OUTPUT,   V4_TP_RST_BIT | 0              | V4_LCD_RST_BIT | 0           | V4_SYS_EN_BIT | 0            );
     exp_write(REG_DIR,      V4_TP_RST_BIT | 0              | V4_LCD_RST_BIT | V4_SDCD_BIT | V4_SYS_EN_BIT | V4_BEE_EN_BIT);
 
-    int i = 5;
-    while(i--)
-    {
-        waveshare_lcd4_beep(true);
-        delay(100);
-        waveshare_lcd4_beep(false);
-        delay(100);
-        waveshare_lcd4_set_backlight(100 - i*20);
-    };
-
-    Serial.println("[BOARD] waveshare_lcd4 v4 init done");
+    // Serial.println("[BOARD] waveshare_lcd4 v4 init done");
 };
 
 void waveshare_lcd4_set_backlight(uint8_t pct)

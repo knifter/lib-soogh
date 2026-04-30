@@ -10,9 +10,6 @@
 
 #include "soogh-epnl_waveshare_lcd4.h"
 
-// using namespace esp_panel::drivers;
-// using namespace esp_panel::board;
-
 esp_panel::board::Board *_epnl_board = nullptr;
 
 // ---------------------------------------------------------------------------
@@ -22,9 +19,7 @@ void epnl_init()
     waveshare_lcd4_init();
 #endif
 
-	static esp_panel::board::Board *board;
-
-	board = new esp_panel::board::Board();
+	static esp_panel::board::Board *board = new esp_panel::board::Board();
 	if(!board->init())
 	{
 		ERROR("board->init() failed!");
@@ -53,12 +48,8 @@ void epnl_init()
 		ERROR("board->begin() failed!");
 		while(1);
 	};
-    _epnl_board = board;
-    
-#ifdef SOOGH_DEV_WAVESHARE_LCD4
-	waveshare_lcd4_set_backlight(100);
-#endif
 
+    _epnl_board = board;
 };
 
 #endif // SOOGH_USE_EPNL
