@@ -36,6 +36,7 @@
 #endif
 
 #ifdef SOOGH_DEV_WAVESHARE_LCD4
+#ifdef SOOGH_DEV_WAVESHARE_LCD4_CUSTOM
     #define DISPLAY_HEIGHT				480
     #define DISPLAY_WIDTH				480
     #define DISPLAY_INCH_HOR            (4.0f)

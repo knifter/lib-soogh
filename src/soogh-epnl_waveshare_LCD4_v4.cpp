@@ -1,7 +1,7 @@
 #include "soogh-epnl_waveshare_LCD4.h"
 
-#ifdef SOOGH_DEV_WAVESHARE_LCD4
-#if WAVESHARE_LCD_VERSION != 3
+#ifdef SOOGH_DEV_WAVESHARE_LCD4_CUSTOM
+#if WAVESHARE_LCD_VERSION == 4
 
 #include <Wire.h>
 #include <Arduino.h>
@@ -100,4 +100,4 @@ void waveshare_lcd4_beep(bool on)
 };
 
 #endif // WAVESHARE_LCD_VERSION != 3
-#endif // SOOGH_DEV_WAVESHARE_LCD4
+#endif // SOOGH_DEV_WAVESHARE_LCD4_CUSTOM

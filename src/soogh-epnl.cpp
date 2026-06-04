@@ -15,10 +15,9 @@ esp_panel::board::Board *_epnl_board = nullptr;
 // ---------------------------------------------------------------------------
 void epnl_init()
 {
-#ifdef SOOGH_DEV_WAVESHARE_LCD4
+#ifdef SOOGH_DEV_WAVESHARE_LCD4_CUSTOM
     waveshare_lcd4_init();
 #endif
-
 	static esp_panel::board::Board *board = new esp_panel::board::Board();
 	if(!board->init())
 	{
@@ -27,7 +26,6 @@ void epnl_init()
 	};
 
 	// Skip I2C re-init if touch / expander exist and use I2C bus (USE_TOUCH=0 / USE_EXPANDER=0 → nullptr).
-// TODO: Is this still needed
 	if(auto *touch = board->getTouch()) 
     {
 		if(auto *bus = static_cast<esp_panel::drivers::BusI2C *>(touch->getBus()))

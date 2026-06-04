@@ -1,6 +1,6 @@
 #include "soogh-epnl_waveshare_LCD4.h"
 
-#ifdef SOOGH_DEV_WAVESHARE_LCD4
+#ifdef SOOGH_DEV_WAVESHARE_LCD4_CUSTOM
 #if WAVESHARE_LCD_VERSION == 3
 
 #include <Wire.h>

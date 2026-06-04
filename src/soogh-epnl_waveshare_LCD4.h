@@ -3,7 +3,7 @@
 
 #include "soogh-conf.h"
 
-#ifdef SOOGH_DEV_WAVESHARE_LCD4
+#ifdef SOOGH_DEV_WAVESHARE_LCD4_CUSTOM
 
 #include <stdint.h>
 
