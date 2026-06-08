@@ -110,11 +110,11 @@ void MenuItem::close()
 
 	draw_close();
 	
-	// Call on-close event callback
-	call_onclose();
-
 	// and then me
 	_open = false;
+
+	// Call on-close event callback
+	call_onclose();
 };
 
 bool MenuItem::isOpen() 
