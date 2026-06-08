@@ -3,6 +3,7 @@
 
 #include <stack>
 #include <memory>
+#include <vector>
 
 
 #include "soogh-conf.h"
@@ -41,6 +42,10 @@ class SooghGUI
 
 	protected:
 		ScreenStack			_scrstack;
+		// Screens popped but not yet destroyed. popScreen() defers destruction
+		// to here so the screen (and its LVGL objects) are not freed from inside
+		// an LVGL event/timer callback. Drained at a safe point in loop().
+		std::vector<ScreenPtr>	_scr_deferred_deletebin;
 		GroupStack  		_groupstack;
 		time_t				_prv_tick;
 		lv_obj_t			*_msgbox = nullptr;

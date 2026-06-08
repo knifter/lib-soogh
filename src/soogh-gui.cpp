@@ -58,6 +58,17 @@ bool SooghGUI::loop()
 	if(!lvgl_lock(10))
         return false;
 
+	// Drain screens popped since last loop(). We're under lvgl_lock and outside
+	// any LVGL event/timer dispatch here, so it's safe to destroy them (and their
+	// widgets) now. Swap into a local first: a ~Screen may popScreen() again
+	// (e.g. menu onClose), which must land in a fresh _scr_deferred_deletebin, not this one.
+	if(!_scr_deferred_deletebin.empty())
+	{
+		std::vector<ScreenPtr> bin;
+		bin.swap(_scr_deferred_deletebin);
+		bin.clear();
+	};
+
 	// ScreenStack may not be empty
 	if(_scrstack.size() == 0)
 	{
@@ -185,8 +196,11 @@ void SooghGUI::popScreen(Screen* scr)
         return;
     };
 
-	// ScreenPtr is a smart ptr. It will delete a in GUI::handle() eventually
+	// Defer destruction: keep the (smart) ptr alive in _scr_deferred_deletebin so the screen
+	// and its LVGL objects are not freed from inside an event/timer callback
+	// (e.g. a touch on a menu's Close button). loop() drains the bin at a safe point.
 	_scrstack.pop();
+	_scr_deferred_deletebin.push_back(top);
 	SOOGH_DBG("pop(%s)", top->name());
 
     // Empty stack protection
@@ -205,7 +219,7 @@ void SooghGUI::popScreen(Screen* scr)
     // Make the gui.handle() flush events before next screen gets them
 	flushEvents();
 
-	SOOGH_DBG("popped, will delete (eventually): %s(%p=%p)", top->name(), top, top.get());
+	SOOGH_DBG("popped, will delete (in next loop): %s(%p=%p)", top->name(), top, top.get());
 	return;
 };
 
