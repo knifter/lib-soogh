@@ -35,10 +35,6 @@
     #define LGFX_AUTODETECT
 #endif
 
-// The Waveshare LCD4 has two backends:
-//   SOOGH_DEV_WAVESHARE_LCD4        -> supported board in ESP32_Display_Panel (BOARD_..._LCD_4_V4)
-//   SOOGH_DEV_WAVESHARE_LCD4_CUSTOM -> soogh's own custom board config (esp_panel_waveshare_LCD4_custom.h)
-// The _CUSTOM variant still uses all the common LCD4 settings below.
 #ifdef SOOGH_DEV_WAVESHARE_LCD4
     #define DISPLAY_HEIGHT				480
     #define DISPLAY_WIDTH				480
